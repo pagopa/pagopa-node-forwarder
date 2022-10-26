@@ -72,6 +72,53 @@ public class SslConfig {
         /**
          * Return the newly created socket factory object
          */
-        return context.getSocketFactory();
+    return context.getSocketFactory();
+    }
+
+    public static SSLContext getSSLSocketFactory2(final String cert, final String key, final String password)
+            throws IOException, CertificateException, KeyManagementException, UnrecoverableKeyException,
+            NoSuchAlgorithmException, KeyStoreException, InvalidKeySpecException {
+
+        /**
+         * Init private key
+         */
+        String keyCleaned = key.replaceAll("-----BEGIN (.*)-----", "").replaceAll("-----END (.*)----", "")
+                .replace("\r\n", "").replace("\n", "").trim();
+
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(keyCleaned));
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
+
+        /**
+         * Load client certificate
+         */
+        InputStream certInputStream = new ByteArrayInputStream(cert.getBytes());
+
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        Certificate caCert = cf.generateCertificate(certInputStream);
+
+        /**
+         * Client key and certificates are sent to server so it can authenticate the
+         * client
+         */
+        KeyStore clientKeyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        clientKeyStore.load(null, null);
+        clientKeyStore.setCertificateEntry("private-certificate", caCert);
+        clientKeyStore.setKeyEntry("private-key", privateKey, password != null ? password.toCharArray() : null,
+                new Certificate[] { caCert });
+
+        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        keyManagerFactory.init(clientKeyStore, null);
+
+        /**
+         * Create SSL socket factory
+         */
+        SSLContext context = SSLContext.getInstance("TLSv1.2");
+        context.init(keyManagerFactory.getKeyManagers(), null, null);
+
+        /**
+         * Return the newly created socket factory object
+         */
+        return context;
     }
 }
