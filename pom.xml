@@ -40,6 +40,14 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-util -->
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-util</artifactId>
+            <version>10.1.1</version>
+        </dependency>
+
+
         <!-- START ADDED -->
         <dependency>
             <groupId>org.springframework.retry</groupId>
