@@ -38,7 +38,9 @@ import java.util.Enumeration;
 @Service
 public class ProxyService {
 
-    static private String HD_HOST_SERVICE = "X-Host-Service";
+    static private String HD_HOST_URL = "X-Host-Url";
+    static private String HD_HOST_PORT = "X-Host-Port";
+    static private String HD_HOST_PATH = "X-Host-Path";
 
     private String cert = "-----BEGIN CERTIFICATE-----\n" +
             "MIIETzCCAzcCCQDT3UyIt5ur0jANBgkqhkiG9w0BAQUFADBmMQswCQYDVQQGEwJh\n" +
@@ -68,7 +70,7 @@ public class ProxyService {
             "-----END CERTIFICATE-----\n";
 
     String domain = "server.aaa.com";
-    int myPort = 8888;
+    int port = 8888;
 //    String domain = "www.mocky.io/v2/5cb6b0c13200003c12cd453f";
 //    int myPort = -1;
 
@@ -99,8 +101,10 @@ public class ProxyService {
         headers.remove(HttpHeaders.ACCEPT_ENCODING);
 
         //log if required in this line
-        String[] service = request.getHeader(HD_HOST_SERVICE).split(":");
-        URI uri = new URI("https", null, service[0]  /*domain*/,Integer.parseInt(service[1])  /*myPort*/, null, null, null);
+        domain = request.getHeader(HD_HOST_URL);
+        port = Integer.parseInt(request.getHeader(HD_HOST_PORT));
+        requestUrl = request.getHeader(HD_HOST_PATH);
+        URI uri = new URI("https", null, domain , port, null, null, null);
 
         // replacing context path form urI to match actual gateway URI
         uri = UriComponentsBuilder.fromUri(uri)
