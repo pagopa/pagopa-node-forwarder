@@ -44,7 +44,7 @@ public class SslConfig {
         /**
          * Init private key
          */
-        RSAPrivateKey privateKey = getPrivateKey("/Users/pasqualespica/my_data/__TEMP/nodejs-ssl-mutual-authentication/certs2/client-key.der");
+        RSAPrivateKey privateKey = getPrivateKey("/Users/pasqualespica/my_data/__TEMP/nodejs-ssl-mutual-authentication/certs2/client-key2.der");
 
         /**
          * Load client certificate
