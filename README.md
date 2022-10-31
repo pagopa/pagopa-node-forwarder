@@ -6,7 +6,8 @@ The microservice behaves like a "proxy": it receives requests from the [Nodo Dei
 
 ---
 ## Api Documentation 📖
-See the [OpenApi 3 here.](TODO: set your url)
+See the [OpenApi 3 here.](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-node-forwarder/main/openapi/openapi.json)
+
 
 ---
 
