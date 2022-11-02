@@ -1,6 +1,6 @@
-package it.gov.pagopa.microservice.controller;
+package it.gov.pagopa.forwarder.controller;
 
-import it.gov.pagopa.microservice.service.ProxyService;
+import it.gov.pagopa.forwarder.service.ProxyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;

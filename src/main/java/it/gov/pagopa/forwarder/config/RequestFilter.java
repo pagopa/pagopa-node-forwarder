@@ -1,4 +1,4 @@
-package it.gov.pagopa.microservice.config;
+package it.gov.pagopa.forwarder.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.UUID;
 
-import static it.gov.pagopa.microservice.util.Constants.HEADER_REQUEST_ID;
+import static it.gov.pagopa.forwarder.util.Constants.HEADER_REQUEST_ID;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
