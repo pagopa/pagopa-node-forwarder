@@ -1,10 +1,21 @@
-package it.gov.pagopa.microservice.config;
+package it.gov.pagopa.forwarder.config;
+
+import org.apache.http.ssl.SSLContextBuilder;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-
-import java.io.*;
-import java.security.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyFactory;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -31,20 +42,24 @@ public class SslConfig {
 
         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        RSAPrivateKey privateKey = (RSAPrivateKey) keyFactory.generatePrivate(spec);
-
-        return privateKey;
-
+        return (RSAPrivateKey) keyFactory.generatePrivate(spec);
     }
 
-    public static SSLContext getSSLSocketFactory(final String cert, final String key, final String password)
+    public static SSLContext getSSLContextFromPFX(final String certificate) throws UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException, KeyManagementException {
+        return SSLContextBuilder.create()
+                .loadKeyMaterial(new File(certificate), "".toCharArray(), "".toCharArray())
+                .loadTrustMaterial(new File(certificate), "".toCharArray())
+                .build();
+    }
+
+    public static SSLContext getSSLContext(final String cert, final String key, final String password)
             throws IOException, CertificateException, KeyManagementException, UnrecoverableKeyException,
             NoSuchAlgorithmException, KeyStoreException, InvalidKeySpecException {
 
         /**
          * Init private key
          */
-        RSAPrivateKey privateKey = getPrivateKey("/Users/pasqualespica/my_data/__TEMP/nodejs-ssl-mutual-authentication/certs2/client-key2.der");
+        RSAPrivateKey privateKey = getPrivateKey(key);
 
         /**
          * Load client certificate
@@ -55,8 +70,7 @@ public class SslConfig {
         Certificate caCert = cf.generateCertificate(certInputStream);
 
         /**
-         * Client key and certificates are sent to server so it can authenticate the
-         * client
+         * Client key and certificates are sent to server, so it can authenticate the client
          */
         KeyStore clientKeyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         clientKeyStore.load(null, null);

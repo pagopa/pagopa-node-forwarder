@@ -1,6 +1,6 @@
-package it.gov.pagopa.microservice.config;
+package it.gov.pagopa.forwarder.config;
 
-import it.gov.pagopa.microservice.exception.AppException;
+import it.gov.pagopa.forwarder.exception.AppException;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;

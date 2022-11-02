@@ -10,10 +10,10 @@
     </parent>
 
     <groupId>it.gov.pagopa</groupId>
-    <artifactId>microservice</artifactId> <!--TODO: set your artifactId-->
+    <artifactId>forwarder</artifactId>
     <version>0.0.1</version>
-    <name>Your project name</name> <!--TODO: set your name-->
-    <description>Your description</description> <!--TODO: set your description-->
+    <name>Node Forwarder</name>
+    <description>API to forward Node requests to the related CIs and PSPs</description>
 
     <properties>
         <java.version>11</java.version>
@@ -154,9 +154,17 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
+        </dependency>
+
+        <!-- Apache Commons IO -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.11.0</version>
         </dependency>
 
         <!-- Swagger/OpenAPI -->

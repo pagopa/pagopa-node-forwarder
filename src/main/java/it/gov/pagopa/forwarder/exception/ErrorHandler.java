@@ -1,6 +1,6 @@
-package it.gov.pagopa.microservice.exception;
+package it.gov.pagopa.forwarder.exception;
 
-import it.gov.pagopa.microservice.model.ProblemJson;
+import it.gov.pagopa.forwarder.model.ProblemJson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
