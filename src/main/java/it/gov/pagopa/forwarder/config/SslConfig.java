@@ -1,7 +1,5 @@
 package it.gov.pagopa.forwarder.config;
 
-import org.apache.http.ssl.SSLContextBuilder;
-
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import java.io.ByteArrayInputStream;
@@ -43,13 +41,6 @@ public class SslConfig {
         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         return (RSAPrivateKey) keyFactory.generatePrivate(spec);
-    }
-
-    public static SSLContext getSSLContextFromPFX(final String certificate) throws UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException, KeyManagementException {
-        return SSLContextBuilder.create()
-                .loadKeyMaterial(new File(certificate), "".toCharArray(), "".toCharArray())
-                .loadTrustMaterial(new File(certificate), "".toCharArray())
-                .build();
     }
 
     public static SSLContext getSSLContext(final String cert, final String key, final String password)

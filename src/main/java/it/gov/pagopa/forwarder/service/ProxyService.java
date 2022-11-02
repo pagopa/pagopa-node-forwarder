@@ -6,11 +6,11 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -19,6 +19,7 @@ import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.SSLContext;
@@ -40,10 +41,6 @@ import java.util.Enumeration;
 
 @Service
 public class ProxyService {
-
-    static private String HD_HOST_URL = "X-Host-Url";
-    static private String HD_HOST_PORT = "X-Host-Port";
-    static private String HD_HOST_PATH = "X-Host-Path";
     static private String X_REQUEST_ID = "X-Request-Id";
 
     @Value("${certificate.path}")
@@ -52,18 +49,17 @@ public class ProxyService {
     @Value("${certificate.key}")
     private String certificateKey;
 
+    private RestTemplate restTemplate;
+
     private final static Logger logger = LogManager.getLogger(ProxyService.class);
 
     @Retryable(exclude = {
             HttpStatusCodeException.class}, include = Exception.class,
             backoff = @Backoff(delay = 5000, multiplier = 4.0), maxAttempts = 4)
-    public ResponseEntity<String> processProxyRequest(String body,
-                                                      HttpMethod method,
-                                                      HttpServletRequest request,
-                                                      HttpServletResponse response,
-                                                      String traceId)
+    public ResponseEntity<String> processProxyRequest(
+            String xHostUrl, Integer xHostPort, String xHostPath, String body,
+            HttpMethod method, HttpServletRequest request, HttpServletResponse response, String xRequestId)
             throws URISyntaxException, UnrecoverableKeyException, CertificateException, IOException, NoSuchAlgorithmException, KeyStoreException, InvalidKeySpecException, KeyManagementException {
-        ThreadContext.put("traceId", traceId);
 
         // Create headers configuration
         HttpHeaders headers = new HttpHeaders();
@@ -72,29 +68,19 @@ public class ProxyService {
         while (headerNames.hasMoreElements()) {
             String headerName = headerNames.nextElement();
             headers.set(headerName, request.getHeader(headerName));
-//            logger.info("hd {} - {}", headerName, request.getHeader(headerName));
         }
 
-        headers.set(X_REQUEST_ID, traceId);
+        headers.set(X_REQUEST_ID, xRequestId);
         headers.remove(HttpHeaders.ACCEPT_ENCODING);
 
         // construct URI for the request
-        String domain = request.getHeader(HD_HOST_URL);
-        int port = Integer.parseInt(request.getHeader(HD_HOST_PORT));
-        String requestUrl = request.getHeader(HD_HOST_PATH);
-        requestUrl = requestUrl.startsWith("/") ? requestUrl : String.format("/%s", requestUrl);
-
-        URI uri = new URI("https", null, domain , port, requestUrl, request.getQueryString(), null);
+        xHostPath = xHostPath.startsWith("/") ? xHostPath : String.format("/%s", xHostPath);
+        URI uri = new URI("https", null, xHostUrl , xHostPort, xHostPath, request.getQueryString(), null);
 
         // set client certificate in the request
-        // retrieve client certificate
-        String cert = FileUtils.readFileToString(new File(certificatePath), StandardCharsets.UTF_8);
-
-        // SSL configuration
-        SSLContext sslContext = SslConfig.getSSLContext(cert, certificateKey, null);
-        HttpClient httpClient = HttpClients.custom().setSSLContext(sslContext).build();
-        ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
-        RestTemplate restTemplate = new RestTemplate(requestFactory);
+        if (this.restTemplate == null) {
+            this.setRestTemplate();
+        }
 
         HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
 
@@ -106,14 +92,29 @@ public class ProxyService {
             logger.info(serverResponse);
             return serverResponse;
 
-
         } catch (HttpStatusCodeException e) {
             logger.error("HTTP Status Code Exception", e);
             return ResponseEntity.status(e.getRawStatusCode())
                     .headers(e.getResponseHeaders())
                     .body(e.getResponseBodyAsString());
+        } catch (ResourceAccessException e) {
+            logger.error("HTTP Status Code Exception", e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("mTLS failed versus CI/PSP. Error: " + e.getMessage());
         }
 
+    }
+
+    private void setRestTemplate() throws IOException, UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, KeyStoreException, InvalidKeySpecException, KeyManagementException {
+        // set client certificate in the request
+        // retrieve client certificate
+        String cert = FileUtils.readFileToString(new File(certificatePath), StandardCharsets.UTF_8);
+
+        // SSL configuration
+        SSLContext sslContext = SslConfig.getSSLContext(cert, certificateKey, null);
+        HttpClient httpClient = HttpClients.custom().setSSLContext(sslContext).build();
+        ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
+        this.restTemplate = new RestTemplate(requestFactory);
     }
 
     @Recover
