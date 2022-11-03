@@ -4,8 +4,8 @@ const options = {
   key: fs.readFileSync(`${__dirname}/certs/server-key.pem`),
   cert: fs.readFileSync(`${__dirname}/certs/server-crt.pem`),
    ca: [
-//     fs.readFileSync(`${__dirname}/certs/client-ca-crt.pem`)
-     fs.readFileSync(`${__dirname}/dev/api-platform-pagopa-it-chain.pem`)
+     fs.readFileSync(`${__dirname}/certs/client-ca-crt.pem`)
+//     fs.readFileSync(`${__dirname}/dev/api-platform-pagopa-it-chain.pem`)
    ],
   // Requesting the client to provide a certificate, to authenticate.
   requestCert: true,
@@ -25,9 +25,10 @@ https
         req.method +
         " " +
         req.url +
-        " "
+        " " +
+        req.socket.getPeerCertificate().subject.CN
     );
-    console.log(req.socket.getPeerCertificate())
+//    console.log(req.socket.getPeerCertificate())
     res.writeHead(200);
     res.end("OK!\n");
   })

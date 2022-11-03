@@ -56,8 +56,40 @@ Start the springboot application with this command:
 
 ### Testing 🧪
 
-#### Unit testing
+#### Manual testing
 
+> NOTE : under `mock` folder run local server typing `node server.js`
+
+Open terminal and typing : 
+```sh
+curl -i --location --request POST 'http://localhost:8080/forward' \
+--header 'X-Host-Url: server.aaa.com' \
+--header 'X-Host-Port: 8888' \
+--header 'X-Host-Path: /path' \
+--header 'Content-Type: application/xml' \
+--data-raw '<hi></hi>'
+```
+
+if all right y'd see something like that 
+
+```sh
+HTTP/1.1 200
+X-Request-Id: fab331b9-8f1d-48d1-a596-ccbaddf778ff
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Date: Thu, 03 Nov 2022 06:21:22 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+Content-Type: text/plain;charset=UTF-8
+Transfer-Encoding: chunked
+
+OK!
+```
+
+
+#### Unit testing
 To run the **Junit** tests:
 
 `mvn clean verify`
