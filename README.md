@@ -106,6 +106,24 @@ install [k6](https://k6.io/) and then from `./performance-test/src`
 1. `k6 run --env VARS=local.environment.json --env TEST_TYPE=./test-types/load.json main_scenario.js`
 
 
+### Cert utilities
+
+Open terminal and under `script` folder typing
+
+> NOTE `<my_cert_file_name>.pfx` should be into current working directory
+```sh
+sh scripts/cert_generator.sh ~/<my_cert_file_name>.pfx
+```
+
+if all right following files are created : 
+
+```sh
+scripts/
+├── certificate-key.der
+├── certificate-key.pem
+└── certificate.crt
+```
+
 ---
 
 ## Contributors 👥
