@@ -1,7 +1,6 @@
 package it.gov.pagopa.forwarder.service;
 
 import it.gov.pagopa.forwarder.config.SslConfig;
-import org.apache.commons.io.FileUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.logging.log4j.LogManager;
@@ -25,11 +24,9 @@ import org.springframework.web.client.RestTemplate;
 import javax.net.ssl.SSLContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -43,8 +40,8 @@ import java.util.Enumeration;
 public class ProxyService {
     static private String X_REQUEST_ID = "X-Request-Id";
 
-    @Value("${certificate.path}")
-    private String certificatePath;
+    @Value("${certificate.crt}")
+    private String certificate;
 
     @Value("${certificate.key}")
     private String certificateKey;
@@ -107,11 +104,8 @@ public class ProxyService {
 
     private void setRestTemplate() throws IOException, UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, KeyStoreException, InvalidKeySpecException, KeyManagementException {
         // set client certificate in the request
-        // retrieve client certificate
-        String cert = FileUtils.readFileToString(new File(certificatePath), StandardCharsets.UTF_8);
-
         // SSL configuration
-        SSLContext sslContext = SslConfig.getSSLContext(cert, certificateKey, null);
+        SSLContext sslContext = SslConfig.getSSLContext(certificate, certificateKey, null);
         HttpClient httpClient = HttpClients.custom().setSSLContext(sslContext).build();
         ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
         this.restTemplate = new RestTemplate(requestFactory);

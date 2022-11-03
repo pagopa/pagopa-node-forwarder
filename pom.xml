@@ -31,6 +31,7 @@
     </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -203,6 +204,14 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.jets3t/jets3t -->
+        <dependency>
+            <groupId>org.jets3t</groupId>
+            <artifactId>jets3t</artifactId>
+            <version>0.9.7</version>
+        </dependency>
+
     </dependencies>
 
     <build>

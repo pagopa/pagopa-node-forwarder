@@ -1,11 +1,10 @@
 package it.gov.pagopa.forwarder.config;
 
+import org.jets3t.service.security.EncryptionUtil;
+
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyFactory;
@@ -28,19 +27,16 @@ public class SslConfig {
         throw new IllegalStateException();
     }
 
-    private static RSAPrivateKey getPrivateKey(String filename) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+    private static RSAPrivateKey getPrivateKey(String pemKey) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 
-        File file = new File(filename);
-        FileInputStream fis = new FileInputStream(file);
-        DataInputStream dis = new DataInputStream(fis);
-
-        byte[] keyBytes = new byte[(int) file.length()];
-        dis.readFully(keyBytes);
-        dis.close();
-
-        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
+        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(fromPem2Der(pemKey));
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         return (RSAPrivateKey) keyFactory.generatePrivate(spec);
+    }
+
+    private static byte[] fromPem2Der(String pemKey) throws IOException {
+        InputStream pemStream = new ByteArrayInputStream(pemKey.getBytes());
+        return EncryptionUtil.convertRsaPemToDer(pemStream);
     }
 
     public static SSLContext getSSLContext(final String cert, final String key, final String password)
