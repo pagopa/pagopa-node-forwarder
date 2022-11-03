@@ -1,10 +1,3 @@
-# Only manual triggers
-trigger: none
-pr: none
-
-pool:
-  vmImage: 'ubuntu-22.04'
-
 parameters:
   - name: ENV
     displayName: Target Environment
@@ -24,200 +17,195 @@ parameters:
       - buildNumber
       - skip
     default: skip
-  - name: "FORCE_REPLACE_DOCKER_IMAGE"
-    displayName: "Force the existing docker image to be replaced"
-    type: boolean
-    default: False
-    values:
-      - False
-      - True
   - name: TEST
-    displayName: Run integration/smoke tests
+    displayName: Run tests
     type: boolean
-    default: true
+    default: false
 
 variables:
-  imageRepository: '$(IMAGE_REPOSITORY_NAME)'
-  nameSpace: '$(K8S_NAMESPACE)'
-
   ${{ if eq(parameters['ENV'], 'dev') }}:
+    AZURE_SUBSCRIPTION: $(DEV_AZURE_SUBSCRIPTION)
+    RESOURCE_GROUP: $(DEV_WEB_APP_RESOURCE_GROUP_NAME)
+    APP_NAME: $(DEV_WEB_APP_NAME)
+    STAGE: "d"
     dockerRegistryServiceConnection: $(DEV_CONTAINER_REGISTRY_SERVICE_CONN)
-    dockerRegistryFqdn: $(DEV_CONTAINER_NAMESPACE)
-    kubernetesServiceConnection: '$(DEV_KUBERNETES_SERVICE_CONN)'
-    poolImage: 'pagopa-dev-linux'
-    appInsightsServiceConn: "$(TF_APPINSIGHTS_SERVICE_CONN_DEV)"
-    appInsightsResourceId: "$(TF_APPINSIGHTS_RESOURCE_ID_DEV)"
+    dockerNamespace: $(DEV_CONTAINER_NAMESPACE)
   ${{ if eq(parameters['ENV'], 'uat') }}:
+    AZURE_SUBSCRIPTION: $(UAT_AZURE_SUBSCRIPTION)
+    RESOURCE_GROUP: $(UAT_WEB_APP_RESOURCE_GROUP_NAME)
+    APP_NAME: $(UAT_WEB_APP_NAME)
+    STAGE: "u"
     dockerRegistryServiceConnection: $(UAT_CONTAINER_REGISTRY_SERVICE_CONN)
-    dockerRegistryFqdn: $(UAT_CONTAINER_NAMESPACE)
-    kubernetesServiceConnection: '$(UAT_KUBERNETES_SERVICE_CONN)'
-    poolImage: 'pagopa-uat-linux'
-    appInsightsServiceConn: "$(TF_APPINSIGHTS_SERVICE_CONN_UAT)"
-    appInsightsResourceId: "$(TF_APPINSIGHTS_RESOURCE_ID_UAT)"
+    dockerNamespace: $(UAT_CONTAINER_NAMESPACE)
   ${{ if eq(parameters['ENV'], 'prod') }}:
+    AZURE_SUBSCRIPTION: $(PROD_AZURE_SUBSCRIPTION)
+    RESOURCE_GROUP: $(PROD_WEB_APP_RESOURCE_GROUP_NAME)
+    APP_NAME: $(PROD_WEB_APP_NAME)
+    STAGE: "p"
     dockerRegistryServiceConnection: $(PROD_CONTAINER_REGISTRY_SERVICE_CONN)
-    dockerRegistryFqdn: $(PROD_CONTAINER_NAMESPACE)
-    kubernetesServiceConnection: '$(PROD_KUBERNETES_SERVICE_CONN)'
-    poolImage: 'pagopa-prod-linux'
-    appInsightsServiceConn: "$(TF_APPINSIGHTS_SERVICE_CONN_PROD)"
-    appInsightsResourceId: "$(TF_APPINSIGHTS_RESOURCE_ID_PROD)"
-
+    dockerNamespace: $(PROD_CONTAINER_NAMESPACE)
   ${{ if eq(variables['Build.SourceBranchName'], 'merge') }}:
-    sourceBranch: "main" # force to main branch
+    SOURCE_BRANCH: "main" # force to main branch
   ${{ if ne(variables['Build.SourceBranchName'], 'merge') }}:
-    sourceBranch: ${{ variables['Build.SourceBranchName'] }}
+    SOURCE_BRANCH: ${{ variables['Build.SourceBranchName'] }}
 
 
+  MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
+  MAVEN_OPTS: "-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)"
+  title: ""
+  sha: ""
+  tag: ""
 
-resources:
-  repositories:
-    - repository: pagopaCommons
-      type: github
-      name: pagopa/azure-pipeline-templates
-      ref: refs/tags/v2.10.1
-      endpoint: 'io-azure-devops-github-ro'
+trigger: none
+pr: none
+
+pool:
+  vmImage: 'ubuntu-22.04'
 
 stages:
 
   # Create a release on GitHub
-  - stage: Release
+  - stage: release_service
+    condition: ne('${{ parameters.SEMVER }}', 'skip')
     jobs:
-      - job: make_release
+      - job: releaseService
         steps:
           - checkout: self
             clean: true
             persistCredentials: true
 
-          - ${{ if ne(parameters.SEMVER, 'skip') }}:
-              - template: templates/maven-github-release/template.yaml@pagopaCommons
-                parameters:
-                  release_branch: $(sourceBranch)
-                  gitEmail: $(GIT_EMAIL)
-                  gitUsername: $(GIT_USERNAME)
-                  gitHubConnection: $(GITHUB_CONNECTION)
-                  ${{ if ne(parameters.SEMVER, 'skip') }}:
-                    semver: '${{ parameters.SEMVER }}'
-                  ${{ if eq(parameters.SEMVER, 'skip') }}:
-                    semver: 'buildNumber' # this case is impossible due to main condition, but it is necessary to work property
-
-          - template: templates/maven-github-current-version/template.yaml@pagopaCommons
-
-  # Build and Push Docker Image
-  - stage: Build
-    dependsOn: Release
-    variables:
-      current_version: $[ stageDependencies.Release.make_release.outputs['current_version.value'] ]
-    jobs:
-      - job: "build"
-        steps:
-          - checkout: self
-            persistCredentials: true
+          - script: |
+              git checkout $(SOURCE_BRANCH)
 
           - script: |
-              git checkout $(sourceBranch)
-            displayName: Checkout and update branch
+              git config --global user.name "$(GIT_USERNAME)"
+              git config --global user.email "$(GIT_EMAIL)"
 
-          - template: templates/docker-release/template.yaml@pagopaCommons
+          - template: azure-templates/maven-versioning.yml
             parameters:
-              CONTAINER_REGISTRY_SERVICE_CONN: $(dockerRegistryServiceConnection)
-              CONTAINER_REGISTRY_FQDN: $(dockerRegistryFqdn)
-              DOCKER_IMAGE_NAME: $(imageRepository)
-              DOCKER_IMAGE_TAG: $(current_version)
-              FORCE_REPLACE_DOCKER_IMAGE: ${{ parameters.FORCE_REPLACE_DOCKER_IMAGE }}
+              semver: "${{ parameters.SEMVER }}"
 
-  # Testing the docker image
-  - stage: Smoke_Test
-    dependsOn:
-      - Build
-    condition: and(succeeded(), eq('${{ parameters.TEST }}', 'true'))
-    jobs:
-      - job: smoke_tests
-        steps:
-          - checkout: self
-            persistCredentials: true
+          - task: Bash@3
+            name: pomversion
+            inputs:
+              targetType: "inline"
+              script: |
+                version=$(mvn -f pom.xml help:evaluate -Dexpression=project.version -q -DforceStdout)
+                echo "##vso[task.setvariable variable=next;isOutput=true]$version"
+              failOnStderr: true
 
           - script: |
-              git checkout $(sourceBranch)
-            displayName: Checkout and update branch
+              git add pom.xml
+              git commit -m "Bump version [skip ci]"
+              git push origin $(SOURCE_BRANCH)
+
+
+          - script: |
+              HEAD_SHA=$(git rev-parse HEAD)
+              TAG="$(pomversion.next)"
+              TITLE="Release $(pomversion.next)"
+              echo "##vso[task.setvariable variable=title]$TITLE"
+              echo "##vso[task.setvariable variable=sha]$HEAD_SHA"
+              echo "##vso[task.setvariable variable=tag]$TAG"
+
+          - script: |
+              echo $(tag)
+              echo $(title)
+              echo $(sha)
+
+
+          # create new release
+          - task: GitHubRelease@0
+            inputs:
+              gitHubConnection: $(GITHUB_CONNECTION)
+              repositoryName: $(Build.Repository.Name)
+              action: create
+              target: $(sha)
+              tagSource: manual
+              tag: $(tag)
+              title: $(title)
+              addChangelog: true
+
+  # Deploy on Azure
+  - stage: deploy
+    condition: not(failed('releaseService'))
+    jobs:
+      - job: deployJava
+        steps:
+
+          - script: |
+              echo ${{variables['Build.SourceBranchName']}}        
+              echo $(SOURCE_BRANCH)
+              echo $(TEST)
+
+          - checkout: self
+            clean: true
+            persistCredentials: true
+            submodules: true
+
+          - script: |
+              git checkout $(SOURCE_BRANCH)
+
+#          - task: Bash@3
+#            name: application_properties
+#            inputs:
+#              targetType: "inline"
+#              script: |
+#                cp src/main/resources/application-azure-$(STAGE).properties src/main/resources/application.properties
+#                cat src/main/resources/application.properties
+#              failOnStderr: true
+
+          - task: Cache@2
+            inputs:
+              key: 'maven | "$(Agent.OS)" | pom.xml'
+              restoreKeys: |
+                maven | "$(Agent.OS)"
+                maven
+              path: $(MAVEN_CACHE_FOLDER)
+            displayName: Set Maven Cache
+
+          - task: Bash@3
+            name: pomversion
+            inputs:
+              targetType: "inline"
+              script: |
+                version=$(mvn -f pom.xml help:evaluate -Dexpression=project.version -q -DforceStdout)
+                echo "##vso[task.setvariable variable=next;isOutput=true]$version"
+              failOnStderr: true
+
+          - task: Maven@3
+            inputs:
+              mavenPomFile: 'pom.xml'
+              publishJUnitResults: false
+              javaHomeOption: 'JDKVersion'
+              jdkVersionOption: '1.11'
+              mavenVersionOption: 'Default'
+              mavenOptions: '-Xmx3072m $(MAVEN_OPTS)'
+              mavenAuthenticateFeed: false
+              effectivePomSkip: false
+              sonarQubeRunAnalysis: false
 
           - task: Docker@2
-            displayName: "Docker login"
+            displayName: Build and push an image to container registry
             inputs:
-              containerRegistry: "$(dockerRegistryServiceConnection)"
-              command: "login"
+              containerRegistry: '$(dockerRegistryServiceConnection)'
+              repository: '$(IMAGE_REPOSITORY)'
+              command: 'buildAndPush'
+              tags: |
+                $(Build.BuildId)
+                latest
+                $(pomversion.next)
 
-          - task: Bash@3
-            displayName: 'Run Smoke Tests'
+          - task: AzureRMWebAppDeployment@4
+            displayName: Azure App Service Deploy
             inputs:
-              targetType: 'inline'
-              script: |
-                cd ./integration-test
-                sh run_integration_test.sh local
-            env:
-              containerRegistry: $(dockerRegistryFqdn)
-
-  # Deploy on K8s with Helm
-  - stage: Deploy
-    condition: not(failed('Smoke_Test'))
-    dependsOn:
-      - Release
-      - Build
-      - Smoke_Test
-    variables:
-      deploy_version: $[ stageDependencies.Release.make_release.outputs['current_version.value'] ]
-    jobs:
-      - deployment: "deploy"
-        pool:
-          name: $(poolImage)
-        environment: ${{ parameters['ENV'] }}
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - checkout: self
-                  persistCredentials: true
-
-                - script: |
-                    git checkout $(sourceBranch)
-                  displayName: Checkout and update branch
-
-                - template: templates/helm-microservice-chart-setup/template.yaml@pagopaCommons
-                  parameters:
-                    DEPLOY_VERSION: $(deploy_version)
-
-                - template: templates/helm-microservice-chart-deploy/template.yaml@pagopaCommons
-                  parameters:
-                    DO_DEPLOY: true
-                    ENV: ${{ parameters['ENV'] }}
-                    KUBERNETES_SERVICE_CONN: ${{ variables.kubernetesServiceConnection }}
-                    NAMESPACE: $(nameSpace)
-                    APP_NAME: $(imageRepository)
-                    VALUE_FILE: "helm/values-${{ parameters['ENV'] }}.yaml"
-                    DEPLOY_VERSION: $(deploy_version)
-                    APPINSIGHTS_SERVICE_CONN: ${{ variables.appInsightsServiceConn }}
-                    APPINSIGHTS_RESOURCE_ID: ${{ variables.appInsightsResourceId }}
-
-
-  # Run Tests
-  - stage: Integration_Test
-    dependsOn:
-      - Deploy
-    condition: and(and(succeeded(), eq('${{ parameters.TEST }}', 'true')), ne('${{ parameters.ENV }}', 'prod'))
-    jobs:
-      - job: integration_tests
-        steps:
-          - checkout: self
-            persistCredentials: true
+              appType: webAppContainer
+              ConnectedServiceName: '$(AZURE_SUBSCRIPTION)'
+              WebAppName: '$(APP_NAME)'
+              DockerNamespace: '$(dockerNamespace)'
+              DockerRepository: '$(IMAGE_REPOSITORY)'
+              DockerImageTag: '$(Build.BuildId)'
 
           - script: |
-              git checkout $(sourceBranch)
-            displayName: Checkout and update branch
-
-          - task: Bash@3
-            displayName: 'Run Integration Tests'
-            inputs:
-              targetType: 'inline'
-              script: |
-                cd ./integration-test/src
-                yarn install
-                yarn test:${{ parameters.ENV }}
+              echo "##vso[task.setvariable variable=version;isOutput=true]$(pomversion.next)"
+            name: dockerTag
