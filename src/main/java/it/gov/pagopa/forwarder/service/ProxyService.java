@@ -11,8 +11,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
@@ -81,12 +83,18 @@ public class ProxyService {
 
         HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
 
+//        // --- path to disable manually mTSL - START
+//        ClientHttpRequestFactory factory = new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
+//        restTemplate = new RestTemplate(factory); // original`
+//        // --- path to disable manually mTSL - STOP
+
         try {
+            logger.info("https req {} >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> {} body {}\n", method, uri, httpEntity);
 
             ResponseEntity<String> serverResponse = restTemplate.exchange(uri, method, httpEntity, String.class);
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.put(HttpHeaders.CONTENT_TYPE, serverResponse.getHeaders().get(HttpHeaders.CONTENT_TYPE));
-            logger.info(serverResponse);
+            logger.info("server resp {}",serverResponse);
             return serverResponse;
 
         } catch (HttpStatusCodeException e) {

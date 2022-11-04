@@ -32,3 +32,7 @@ hs_err_pid*
 # Project files
 /target/
 **/node_modules
+
+scripts/*.pem
+*.pagopa
+*.DS_Store
