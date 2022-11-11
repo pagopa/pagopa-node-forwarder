@@ -16,5 +16,9 @@ openssl pkcs12 -in "${pfx_file}" -clcerts -password pass: -nokeys -out certifica
 # extract encrypted private key
 openssl pkcs12 -in "${pfx_file}" -password pass: -nocerts -nodes -out certificate-key.pem
 
-# convert PEM key to DER format
-openssl pkcs8 -topk8 -inform PEM -outform DER -in certificate-key.pem -out certificate-key.der -nocrypt
+# clean files
+sed -i '' -e '/-----BEGIN/,$!d' certificate.crt
+sed -i '' -e '/-----BEGIN/,$!d' certificate-key.pem
+
+# convert PEM key to DER format (it is useful only for debug reading file directly)
+# openssl pkcs8 -topk8 -inform PEM -outform DER -in certificate-key.pem -out certificate-key.der -nocrypt
