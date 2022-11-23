@@ -2,17 +2,13 @@
 
 This is a set of [k6](https://k6.io) tests.
 
-To invoke k6 test passing parameter use -e (or --env) flag:
+To invoke k6 tests use `run_performance_test.sh` script.
 
-```
--e MY_VARIABLE=MY_VALUE
-```
 
 ## How to run 🚀
 
-Use this command to launch the load tests:
+Use this command to launch the tests:
 
+``` shell
+sh run_performance_test.sh <local|dev|uat|prod> <load|stress|spike|soak|...> <script-filename> <db-name> <subkey>
 ```
-k6 run --env VARS=local.environment.json --env TEST_TYPE=./test-types/load.json <script-name>.js
-```
-

@@ -9,20 +9,8 @@
     "p(99.99)",
     "count"
   ],
-  "stages": [
-    {
-      "duration": "1s",
-      "target": 5
-    },
-    {
-      "duration": "2s",
-      "target": 5
-    },
-    {
-      "duration": "1s",
-      "target": 0
-    }
-  ],
+  "vus": 1,
+  "iteration": 1,
   "thresholds": {
     "http_req_failed": [
       "rate<0.1"
@@ -35,3 +23,4 @@
     ]
   }
 }
+
