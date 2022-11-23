@@ -1,49 +1,74 @@
-# TMP disable
+# azure-pipelines.yml
+trigger: none
 
-## azure-pipelines.yml
-#trigger: none
-#
-#pool:
-#  name: performance-test-linux
-#
-#parameters:
-#  - name: "API_SUBSCRIPTION_KEY"
-#    displayName: "API_SUBSCRIPTION_KEY"
-#    type: string
-#  - name: "ENVIRONMENT"
-#    displayName: "Environment"
-#    type: string
-#    values:
-#      - "dev"
-#      - "uat"
-#      - "prod"
-#  - name: "TEST_TYPE"
-#    displayName: "Test type"
-#    type: string
-#    values:
-#      - "load"
-#      - "spike"
-#      - "stress"
-#      - "soak"
-#      - # TODO: add your values
-#  - name: "SCRIPT"
-#    displayName: "Script name"
-#    type: string
-#    values:
-#      - yourscriptname # TODO: add your script
-#
-#steps:
-#  - script: |
-#      cd ./performance-tests/src
-#      docker pull grafana/k6
-#    displayName: Pull k6 image
-#
-#    # TODO: add your env params
-#  - script: |
-#      docker run \
-#        -v ${PWD}:/script \
-#        -e API_SUBSCRIPTION_KEY=${{ parameters.API_SUBSCRIPTION_KEY }} \
-#        -e VARS=${{ parameters.ENVIRONMENT }}.environment.json \
-#        -e TEST_TYPE=./test-types/${{ parameters.TEST_TYPE }}.json \
-#        grafana/k6 run /script/${{ parameters.SCRIPT }}.js \
-#    displayName: Run k6 ${{ parameters.SCRIPT }} on ${{ parameters.ENVIRONMENT }}
+pool:
+  name: pagopa-dev-loadtest-linux
+
+parameters:
+  - name: "ENVIRONMENT"
+    displayName: "Environment"
+    type: string
+    values:
+      - "dev"
+      - "uat"
+    default: "uat"
+  - name: "ID_PSP"
+    displayName: "ID_PSP"
+    type: string
+  - name: "ID_BROKER_PSP"
+    displayName: "ID_BROKER_PSP"
+    type: string
+  - name: "ID_CHANNEL"
+    displayName: "ID_CHANNEL"
+    type: string
+  - name: "ID_CI"
+    displayName: "ID_CI"
+    type: string
+    default: "77777777777"
+  - name: "ID_BROKER_CI"
+    displayName: "ID_BROKER_CI"
+    type: string
+    default: "77777777777"
+  - name: "ID_STATION"
+    displayName: "ID_STATION"
+    type: string
+    default: "77777777777_08"
+  - name: "NOTICE_NUMBER"
+    displayName: "NOTICE_NUMBER"
+    type: string
+    default: "346111111112222222"
+  - name: "TEST_TYPE"
+    displayName: "Test type"
+    type: string
+    values:
+      - "load"
+      - "ramping"
+      - "single"
+      - "spike"
+      - "stress"
+      - "constant"
+    default: "constant"
+  - name: "SCRIPT"
+    displayName: "Script name"
+    type: string
+    values:
+      - node_pa
+      - psp_node_pa
+    default: "node_pa"
+
+variables:
+  ${{ if eq(parameters['ENV'], 'dev') }}:
+    API_SUBSCRIPTION_KEY: $(DEV_API_SUBSCRIPTION_KEY)
+  ${{ if eq(parameters['ENV'], 'uat') }}:
+    API_SUBSCRIPTION_KEY: $(UAT_API_SUBSCRIPTION_KEY)
+
+steps:
+  - script: |
+      cd ./performance-tests/src
+      docker pull grafana/k6
+    displayName: Pull k6 image
+
+  - script: |
+      cd ./performance-test
+      sh ./run_performance_test.sh ${{ parameters.ENVIRONMENT }} ${{ parameters.TEST_TYPE }} ${{ parameters.SCRIPT }} nuovaconnettivita $(API_SUBSCRIPTION_KEY)
+    displayName: Run k6 ${{ parameters.SCRIPT }} on ${{ parameters.ENVIRONMENT }}
