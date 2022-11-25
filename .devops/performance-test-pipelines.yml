@@ -15,15 +15,15 @@ parameters:
   - name: "ID_PSP"
     displayName: "ID_PSP"
     type: string
-    default: "set if psp_node_pa"
+    default: ""
   - name: "ID_BROKER_PSP"
     displayName: "ID_BROKER_PSP"
     type: string
-    default: "set if psp_node_pa"
+    default: ""
   - name: "ID_CHANNEL"
     displayName: "ID_CHANNEL"
     type: string
-    default: "set if psp_node_pa"
+    default: ""
   - name: "ID_CI"
     displayName: "ID_CI"
     type: string
