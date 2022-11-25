@@ -15,6 +15,7 @@ NOTICE_NUMBER=$12
 HOST_URL=$13
 HOST_PORT=$14
 HOST_PATH=$15
+DEBUG=$16
 
 if [ -z "$ENVIRONMENT" ]
 then
@@ -54,6 +55,7 @@ export notice_number=${NOTICE_NUMBER}
 export host_url=${HOST_URL}
 export host_port=${HOST_PORT}
 export host_path=${HOST_PATH}
+export debug=${DEBUG}
 
 stack_name=$(cd .. && basename "$PWD")
 docker compose -p "${stack_name}-k6" up -d --remove-orphans --force-recreate --build

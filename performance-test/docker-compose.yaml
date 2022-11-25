@@ -20,6 +20,7 @@ services:
       - HOST_URL=${host_url}
       - HOST_PORT=${host_port}
       - HOST_PATH=${host_path}
+      - DEBUG=${debug}
     command: run /scripts/${script}.js
     depends_on:
       - nginx
