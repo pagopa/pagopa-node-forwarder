@@ -73,7 +73,7 @@ parameters:
     default: "node_pa"
   - name: "DEBUG"
     displayName: "Enable debug in script"
-    type: bool
+    type: boolean
     default: false
 
 variables:
