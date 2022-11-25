@@ -40,6 +40,18 @@ parameters:
     displayName: "NOTICE_NUMBER"
     type: string
     default: "346111111112222222"
+  - name: "HOST_URL"
+    displayName: "TARGET_HOST"
+    type: string
+    default: "mockec.ddns.net"
+  - name: "HOST_PORT"
+    displayName: "TARGET_PORT"
+    type: number
+    default: "8080"
+  - name: "HOST_PATH"
+    displayName: "TARGET_PATH"
+    type: string
+    default: "/servizi/PagamentiTelematiciRPT"
   - name: "TEST_TYPE"
     displayName: "Test type"
     type: string
@@ -74,5 +86,5 @@ steps:
 
   - script: |
       cd ./performance-test
-      sh ./run_performance_test.sh ${{ parameters.ENVIRONMENT }} ${{ parameters.TEST_TYPE }} ${{ parameters.SCRIPT }} $(DB_NAME) $(API_SUBSCRIPTION_KEY)
+      sh ./run_performance_test.sh ${{ parameters.ENVIRONMENT }} ${{ parameters.TEST_TYPE }} ${{ parameters.SCRIPT }} $(DB_NAME) $(API_SUBSCRIPTION_KEY) ${{ parameters.ID_PSP }} ${{ parameters.ID_BROKER_PSP }} ${{ parameters.ID_CHANNEL }} ${{ parameters.ID_CI }} ${{ parameters.ID_BROKER_CI }} ${{ parameters.ID_STATION }} ${{ parameters.NOTICE_NUMBER }} ${{ parameters.HOST_URL }} ${{ parameters.HOST_PORT }} ${{ parameters.HOST_PATH }}
     displayName: Run k6 ${{ parameters.SCRIPT }} on ${{ parameters.ENVIRONMENT }}
