@@ -55,8 +55,6 @@ export host_url=${HOST_URL}
 export host_port=${HOST_PORT}
 export host_path=${HOST_PATH}
 
-printenv
-
 stack_name=$(cd .. && basename "$PWD")
 docker compose -p "${stack_name}-k6" up -d --remove-orphans --force-recreate --build
 docker logs -f k6
