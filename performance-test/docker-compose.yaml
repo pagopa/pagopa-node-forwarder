@@ -10,6 +10,16 @@ services:
       - VARS=/${env}.environment.json
       - TEST_TYPE=/scripts/test-types/${type}.json
       - K6_OUT=influxdb=http://nginx:8086/${db_name}
+      - ID_PSP=${id_psp}
+      - ID_BROKER_PSP=${id_broker_psp}
+      - ID_CHANNEL=${id_channel}
+      - ID_CI=${id_ci}
+      - ID_BROKER_CI=${id_broker_ci}
+      - ID_STATION=${id_station}
+      - NOTICE_NUMBER=${notice_number}
+      - HOST_URL=${host_url}
+      - HOST_PORT=${host_port}
+      - HOST_PATH=${host_path}
     command: run /scripts/${script}.js
     depends_on:
       - nginx
