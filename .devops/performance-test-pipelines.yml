@@ -60,7 +60,8 @@ parameters:
       - "spike"
       - "stress"
       - "constant"
-    default: "constant"
+      - "constant_test"
+    default: "constant_test"
   - name: "SCRIPT"
     displayName: "Script name"
     type: string
