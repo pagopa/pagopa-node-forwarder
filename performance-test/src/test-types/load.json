@@ -11,16 +11,28 @@
   ],
   "stages": [
     {
-      "duration": "1s",
-      "target": 5
+      "duration": "10m",
+      "target": 40
     },
     {
-      "duration": "2s",
-      "target": 5
+      "duration": "15m",
+      "target": 110
     },
     {
-      "duration": "1s",
-      "target": 0
+      "duration": "10m",
+      "target": 125
+    },
+    {
+      "duration": "10m",
+      "target": 180
+    },
+    {
+      "duration": "15m",
+      "target": 230
+    },
+    {
+      "duration": "15m",
+      "target": 300
     }
   ],
   "thresholds": {
