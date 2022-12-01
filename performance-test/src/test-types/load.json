@@ -11,28 +11,28 @@
   ],
   "stages": [
     {
-      "duration": "10m",
-      "target": 40
+      "duration": "6m",
+      "target": 100
     },
     {
-      "duration": "15m",
-      "target": 110
+      "duration": "3m",
+      "target": 150
     },
     {
-      "duration": "10m",
-      "target": 125
+      "duration": "3m",
+      "target": 200
     },
     {
-      "duration": "10m",
-      "target": 180
+      "duration": "3m",
+      "target": 250
     },
     {
-      "duration": "15m",
-      "target": 230
-    },
-    {
-      "duration": "15m",
+      "duration": "3m",
       "target": 300
+    },
+    {
+      "duration": "3m",
+      "target": 350
     }
   ],
   "thresholds": {
