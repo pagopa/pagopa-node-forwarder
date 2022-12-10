@@ -8,18 +8,12 @@ The microservice behaves like a "proxy": it receives requests from the [Nodo Dei
 <details>
   <summary>NAT gateway IPs</summary>
 
-### Heading
+### Outbound pagopa-natgw ips
 - UAT env `20.56.27.220`
 - PROD env 🚧  
 
-### Some Code
-  ```js
-  function logSomething(something) {
-    console.log('Something', something);
-  }
-  ```
 </details>
----
+
 ## Api Documentation 📖
 See the [OpenApi 3 here.](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-node-forwarder/main/openapi/openapi.json)
 
