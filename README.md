@@ -4,6 +4,21 @@
 
 The microservice behaves like a "proxy": it receives requests from the [Nodo Dei Pagamenti](https://github.com/pagopa/pagopa-nodo4-nodo-dei-pagamenti)  and forwards them to the endpoint of the EC or PSP.
 
+![infra-fowarder-pagopa](docs/img/fowarder-pagopa.drawio.png)
+<details>
+  <summary>NAT gateway IPs</summary>
+
+### Heading
+- UAT env `20.56.27.220`
+- PROD env 🚧  
+
+### Some Code
+  ```js
+  function logSomething(something) {
+    console.log('Something', something);
+  }
+  ```
+</details>
 ---
 ## Api Documentation 📖
 See the [OpenApi 3 here.](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-node-forwarder/main/openapi/openapi.json)
