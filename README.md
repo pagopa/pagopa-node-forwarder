@@ -10,7 +10,7 @@ The microservice behaves like a "proxy": it receives requests from the [Nodo Dei
 
 ### Outbound pagopa-natgw ips
 - UAT env `20.56.27.220`
-- PROD env 🚧  
+- PROD env `20.86.139.154` or `20.86.139.86`
 
 </details>
 
