@@ -1,7 +1,5 @@
 # pagoPA node forwarder 
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=TODO-set-your-id&metric=alert_status)](https://sonarcloud.io/dashboard?id=TODO-set-your-id)
-
 The microservice behaves like a "proxy": it receives requests from the [Nodo Dei Pagamenti](https://github.com/pagopa/pagopa-nodo4-nodo-dei-pagamenti)  and forwards them to the endpoint of the EC or PSP.
 
 ![infra-fowarder-pagopa](docs/img/fowarder-pagopa.drawio.png)
