@@ -43,6 +43,6 @@ openssl pkcs8 -topk8 -nocrypt -in "$pkcs1_private_key" -out "$pkcs8_private_key"
 # extract crt from pem
 openssl x509 -outform pem -in "$pem_certificate" -out "$crt_certificate"
 
-echo -n "uploading info into azure kv"
-az keyvault secret set --vault-name "$kv_name" --name "certificate-crt-node-forwarder" --file "$environment-certificate.crt"
+echo "uploading info into azure kv"
+az keyvault secret set --vault-name "$kv_name" --name "certificate-crt-node-forwarder" --file "$crt_certificate"
 az keyvault secret set --vault-name "$kv_name" --name "certificate-key-node-forwarder" --file "$pkcs8_private_key"
