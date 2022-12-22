@@ -70,6 +70,7 @@ public class ProxyService {
         }
 
         headers.set(X_REQUEST_ID, xRequestId);
+        headers.set(HttpHeaders.HOST, xHostUrl);
         headers.remove(HttpHeaders.ACCEPT_ENCODING);
 
         // construct URI for the request
