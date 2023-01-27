@@ -1,36 +1,41 @@
 {
-  "executor": "ramping-vus",
-  "startVUs": 0,
-  "stages": [
-    {
-      "duration": "5m",
-      "target": 100
-    },
-    {
-      "duration": "10m",
-      "target": 100
-    },
-    {
-      "duration": "3m",
-      "target": 200
-    },
-    {
-      "duration": "2m",
-      "target": 200
-    },
-    {
-      "duration": "3m",
-      "target": 100
-    },
-    {
-      "duration": "10m",
-      "target": 100
-    },
-    {
-      "duration": "5m",
-      "target": 0
+  "discardResponseBodies": true,
+  "scenarios": {
+    "contacts": {
+      "executor": "ramping-arrival-rate",
+      "startRate": 3000,
+      "timeUnit": "5m",
+      "preAllocatedVUs": 2,
+      "maxVUs": 10000,
+      "stages": [
+        {
+          "duration": "5m",
+          "target": 20000
+        },
+        {
+          "duration": "5m",
+          "target": 30000
+        },
+        {
+          "duration": "5m",
+          "target": 40000
+        },
+        {
+          "duration": "5m",
+          "target": 50000
+        },
+        {
+          "duration": "5m",
+          "target": 60000
+        },
+        {
+          "duration": "5m",
+          "target": 0
+        }
+      ]
     }
-  ],
-  "gracefulRampDown": "0s"
+  }
 }
+
+
 
