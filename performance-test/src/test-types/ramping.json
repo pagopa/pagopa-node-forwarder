@@ -10,39 +10,11 @@
       "stages": [
         {
           "duration": "10m",
-          "target": 20000
-        },
-        {
-          "duration": "10m",
-          "target": 20000
-        },
-        {
-          "duration": "10m",
-          "target": 30000
-        },
-        {
-          "duration": "10m",
-          "target": 30000
-        },
-        {
-          "duration": "10m",
-          "target": 40000
-        },
-        {
-          "duration": "10m",
           "target": 40000
         },
         {
           "duration": "10m",
           "target": 50000
-        },
-        {
-          "duration": "10m",
-          "target": 50000
-        },
-        {
-          "duration": "10m",
-          "target": 60000
         },
         {
           "duration": "10m",
