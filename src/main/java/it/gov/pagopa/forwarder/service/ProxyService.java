@@ -48,6 +48,9 @@ public class ProxyService {
     @Value("${certificate.key}")
     private String certificateKey;
 
+    @Value("info.application.version")
+    private String nodeForwarderVersion;
+
     private RestTemplate restTemplate;
 
     private final static Logger logger = LogManager.getLogger(ProxyService.class);
@@ -90,6 +93,7 @@ public class ProxyService {
 //        // --- path to disable manually mTSL - STOP
 
         try {
+            logger.info("Node Forwarder version: " + nodeForwarderVersion);
             logger.info("https req {} >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> {} body {}\n", method, uri, httpEntity);
 
             ResponseEntity<String> serverResponse = restTemplate.exchange(uri, method, httpEntity, String.class);
