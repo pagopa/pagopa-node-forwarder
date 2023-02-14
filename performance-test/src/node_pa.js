@@ -55,6 +55,11 @@ export default function node_pa() {
 		if (debug) {
 			console.log("RESPONSE", JSON.stringify(response));
 		}
+        if (response.status !== 200){
+            console.log("ERROR!")
+            console.log("REQ PAYLOAD", payload)
+            console.log("RESPONSE", JSON.stringify(response));
+        }
 		return response.status === 200;
 	};
 	check(response, responseData);
