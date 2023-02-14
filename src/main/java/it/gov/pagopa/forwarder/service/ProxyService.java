@@ -48,7 +48,7 @@ public class ProxyService {
     @Value("${certificate.key}")
     private String certificateKey;
 
-    @Value("info.application.version")
+    @Value("${info.application.version}")
     private String nodeForwarderVersion;
 
     private RestTemplate restTemplate;
