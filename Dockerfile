@@ -9,7 +9,7 @@ RUN mvn clean package
 
 FROM adoptopenjdk/openjdk11:alpine-jre as builder
 COPY --from=buildtime /build/target/*.jar application.jar
-RUN java -Djarmode=layertools -jar application.jar extract
+RUN java -Djarmode=layertools -Djavax.net.debug=ssl:handshake -jar application.jar extract
 
 
 FROM ghcr.io/pagopa/docker-base-springboot-openjdk11:v1.0.1@sha256:bbbe948e91efa0a3e66d8f308047ec255f64898e7f9250bdb63985efd3a95dbf
