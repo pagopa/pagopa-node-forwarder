@@ -57,6 +57,9 @@ export host_port=${HOST_PORT}
 export host_path=${HOST_PATH}
 export debug=${DEBUG}
 
+docker rm nginx
+docker rm k6
+
 stack_name=$(cd .. && basename "$PWD")
 docker compose -p "${stack_name}-k6" up -d --remove-orphans --force-recreate --build
 docker logs -f k6
