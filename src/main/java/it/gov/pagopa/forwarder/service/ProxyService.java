@@ -57,9 +57,9 @@ public class ProxyService {
 
     private static final Logger logger = LogManager.getLogger(ProxyService.class);
 
-    @Retryable(exclude = {
-            HttpStatusCodeException.class}, include = Exception.class,
-            backoff = @Backoff(delay = 5000, multiplier = 4.0), maxAttempts = 4)
+//    @Retryable(exclude = {
+//            HttpStatusCodeException.class}, include = Exception.class,
+//            backoff = @Backoff(delay = 5000, multiplier = 4.0), maxAttempts = 4)
     public ResponseEntity<String> processProxyRequest(
             String xHostUrl, Integer xHostPort, String xHostPath, String body,
             HttpMethod method, HttpServletRequest request, HttpServletResponse response, String xRequestId)
@@ -98,14 +98,12 @@ public class ProxyService {
             logger.info("Node Forwarder version: {}", nodeForwarderVersion);
             logger.info("https req {} >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> {} body {}\n", method, uri, httpEntity);
 
-//            ResponseEntity<String> serverResponse = restTemplate.exchange(uri, method, httpEntity, String.class);
-//            HttpHeaders responseHeaders = new HttpHeaders();
-//            List<String> value = serverResponse.getHeaders().get(HttpHeaders.CONTENT_TYPE);
-//            responseHeaders.put(HttpHeaders.CONTENT_TYPE, value != null ? value : new ArrayList<>());
-//            logger.info("server resp {}", serverResponse);
-//            return serverResponse;
-            return ResponseEntity.ok().body("OK") ;
-
+            ResponseEntity<String> serverResponse = restTemplate.exchange(uri, method, httpEntity, String.class);
+            HttpHeaders responseHeaders = new HttpHeaders();
+            List<String> value = serverResponse.getHeaders().get(HttpHeaders.CONTENT_TYPE);
+            responseHeaders.put(HttpHeaders.CONTENT_TYPE, value != null ? value : new ArrayList<>());
+            logger.info("server resp {}", serverResponse);
+            return serverResponse;
         } catch (HttpStatusCodeException e) {
             logger.error("HTTP Status Code Exception", e);
             return ResponseEntity.status(e.getRawStatusCode())
