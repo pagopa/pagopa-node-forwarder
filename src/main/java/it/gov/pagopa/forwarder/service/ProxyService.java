@@ -1,6 +1,7 @@
 package it.gov.pagopa.forwarder.service;
 
 import it.gov.pagopa.forwarder.config.SslConfig;
+import it.gov.pagopa.forwarder.exception.AppException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
@@ -34,7 +35,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 
 @Service
@@ -92,14 +95,16 @@ public class ProxyService {
 //        // --- path to disable manually mTSL - STOP
 
         try {
-            logger.info("Node Forwarder version: " + nodeForwarderVersion);
+            logger.info("Node Forwarder version: {}", nodeForwarderVersion);
             logger.info("https req {} >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> {} body {}\n", method, uri, httpEntity);
 
-            ResponseEntity<String> serverResponse = restTemplate.exchange(uri, method, httpEntity, String.class);
-            HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.put(HttpHeaders.CONTENT_TYPE, serverResponse.getHeaders().get(HttpHeaders.CONTENT_TYPE));
-            logger.info("server resp {}", serverResponse);
-            return serverResponse;
+//            ResponseEntity<String> serverResponse = restTemplate.exchange(uri, method, httpEntity, String.class);
+//            HttpHeaders responseHeaders = new HttpHeaders();
+//            List<String> value = serverResponse.getHeaders().get(HttpHeaders.CONTENT_TYPE);
+//            responseHeaders.put(HttpHeaders.CONTENT_TYPE, value != null ? value : new ArrayList<>());
+//            logger.info("server resp {}", serverResponse);
+//            return serverResponse;
+            return ResponseEntity.ok().body("OK") ;
 
         } catch (HttpStatusCodeException e) {
             logger.error("HTTP Status Code Exception", e);
@@ -140,9 +145,9 @@ public class ProxyService {
     @Recover
     public ResponseEntity<String> recoverFromRestClientErrors(Exception e, String body,
                                                               HttpMethod method, HttpServletRequest request, HttpServletResponse response, String traceId) {
-        logger.error("retry method for the following url " + request.getRequestURI() + " has failed" + e.getMessage());
+        logger.error("retry method for the following url {} has failed {}", request.getRequestURI(), e.getMessage());
         logger.error(e.getStackTrace());
-        throw new RuntimeException("There was an error trying to process you request. Please try again later");
+        throw new AppException(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong", "There was an error trying to process you request. Please try again later");
     }
 
 }
