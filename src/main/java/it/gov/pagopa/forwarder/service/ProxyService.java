@@ -57,9 +57,9 @@ public class ProxyService {
 
     private static final Logger logger = LogManager.getLogger(ProxyService.class);
 
-//    @Retryable(exclude = {
-//            HttpStatusCodeException.class}, include = Exception.class,
-//            backoff = @Backoff(delay = 5000, multiplier = 4.0), maxAttempts = 4)
+    @Retryable(exclude = {
+            HttpStatusCodeException.class}, include = Exception.class,
+            backoff = @Backoff(delay = 5000, multiplier = 4.0), maxAttempts = 4)
     public ResponseEntity<String> processProxyRequest(
             String xHostUrl, Integer xHostPort, String xHostPath, String body,
             HttpMethod method, HttpServletRequest request, HttpServletResponse response, String xRequestId)
