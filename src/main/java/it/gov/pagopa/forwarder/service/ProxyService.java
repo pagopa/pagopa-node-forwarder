@@ -129,8 +129,12 @@ public class ProxyService {
                 .register("https", socketFactory)
                 .build();
         PoolingHttpClientConnectionManager poolingConnManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-        poolingConnManager.setMaxTotal(200);
-        poolingConnManager.setDefaultMaxPerRoute(50);
+        poolingConnManager.setMaxTotal(4);
+        poolingConnManager.setDefaultMaxPerRoute(4);
+        // λ = L / W
+        // 10 = 5 / 0.5 s
+        // 200 rps = x / 0.02 s  200 * 2  = 4
+        // 4 * 20ms = 20
 
         HttpClient httpClient = HttpClients.custom()
                 .setSSLSocketFactory(socketFactory)
