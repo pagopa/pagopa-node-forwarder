@@ -2,7 +2,7 @@
   "environment": [
     {
       "env": "local",
-      "forwarderHost": "http://localhost:8082/forward",
+      "forwarderHost": "http://localhost:8080/forward",
       "nodeHost": "http://localhost:8080/webservices/input",
       "primitives": {
         "verifyPaymentNotice": "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:nod=\"http://pagopa-api.pagopa.gov.it/node/nodeForPsp.xsd\"><soapenv:Header/><soapenv:Body><nod:verifyPaymentNoticeReq><idPSP>ID_PSP</idPSP><idBrokerPSP>ID_BROKER_PSP</idBrokerPSP><idChannel>ID_CHANNEL</idChannel><password>PLACEHOLDER</password><qrCode><fiscalCode>ID_CI</fiscalCode><noticeNumber>NOTICE_NUMBER</noticeNumber></qrCode></nod:verifyPaymentNoticeReq></soapenv:Body></soapenv:Envelope>",

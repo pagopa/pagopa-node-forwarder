@@ -35,15 +35,9 @@ public class LoggingAspect {
     @Value("${info.properties.environment}")
     private String environment;
 
-    // TODO: set your package
     @Pointcut("@within(org.springframework.web.bind.annotation.RestController)")
     public void restController() {
         // all rest controllers
-    }
-
-    @Pointcut("execution(* it.gov.pagopa.forwarder.repository..*.*(..))")
-    public void repository() {
-        // all repository methods
     }
 
     @Pointcut("execution(* it.gov.pagopa.forwarder.service..*.*(..))")
@@ -98,7 +92,7 @@ public class LoggingAspect {
         log.info("Failed API operation {} - error: {}", joinPoint.getSignature().getName(), result);
     }
 
-    @Around(value = "repository() || service()")
+    @Around(value = "service()")
     public Object logExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
         Object result = joinPoint.proceed();
@@ -107,7 +101,7 @@ public class LoggingAspect {
         return result;
     }
 
-    @Around(value = "repository() || service()")
+    @Around(value = "service()")
     public Object logTrace(ProceedingJoinPoint joinPoint) throws Throwable {
         log.debug("Call method {} - args: {}", joinPoint.getSignature().toShortString(), joinPoint.getArgs());
         Object result = joinPoint.proceed();

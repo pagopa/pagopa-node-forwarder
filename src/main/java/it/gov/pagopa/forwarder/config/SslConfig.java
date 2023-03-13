@@ -43,12 +43,12 @@ public class SslConfig {
             throws IOException, CertificateException, KeyManagementException, UnrecoverableKeyException,
             NoSuchAlgorithmException, KeyStoreException, InvalidKeySpecException {
 
-        /**
+        /*
          * Init private key
          */
         RSAPrivateKey privateKey = getPrivateKey(key);
 
-        /**
+        /*
          * Load client certificate
          */
         InputStream certInputStream = new ByteArrayInputStream(cert.getBytes());
@@ -56,7 +56,7 @@ public class SslConfig {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         Certificate caCert = cf.generateCertificate(certInputStream);
 
-        /**
+        /*
          * Client key and certificates are sent to server, so it can authenticate the client
          */
         KeyStore clientKeyStore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -68,14 +68,14 @@ public class SslConfig {
         KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         keyManagerFactory.init(clientKeyStore, null);
 
-        /**
+        /*
          * Create SSL socket factory
          */
         SSLContext context = SSLContext.getInstance("TLSv1.2");
         context.init(keyManagerFactory.getKeyManagers(), null, null);
 
-        /**
-         * Return the newly created socket factory object
+        /*
+          Return the newly created socket factory object
          */
         return context;
     }
