@@ -77,7 +77,9 @@ public class ProxyService {
 
         while (headerNames.hasMoreElements()) {
             String headerName = headerNames.nextElement();
-            headers.set(headerName, request.getHeader(headerName));
+            if (!headerName.equalsIgnoreCase("ocp-apim-subscription-key")) {
+                headers.set(headerName, request.getHeader(headerName));
+            }
         }
 
         headers.set(X_REQUEST_ID, xRequestId);
