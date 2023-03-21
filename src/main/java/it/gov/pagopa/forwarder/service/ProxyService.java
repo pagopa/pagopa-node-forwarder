@@ -56,7 +56,7 @@ public class ProxyService {
     @Value("${pool.max-connection}")
     private Integer maxConnection;
 
-    @Value("${pool.max-connection.per-reoute}")
+    @Value("${pool.max-connection.per-route}")
     private Integer maxConnectionPerRoute;
 
     private RestTemplate restTemplate;
