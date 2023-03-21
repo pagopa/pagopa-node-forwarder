@@ -11,7 +11,7 @@
 
     <groupId>it.gov.pagopa</groupId>
     <artifactId>forwarder</artifactId>
-    <version>0.0.4-10</version>
+    <version>0.0.4-11</version>
     <name>Node Forwarder</name>
     <description>API to forward Node requests to the related CIs and PSPs</description>
 
