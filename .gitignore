@@ -37,3 +37,8 @@ scripts/*.pem
 *.pagopa
 *.DS_Store
 **/.terraform
+__*.sh
+*.crt
+*.PROD
+*.UAT
+*.key
