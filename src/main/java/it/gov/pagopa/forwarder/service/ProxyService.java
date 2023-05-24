@@ -3,10 +3,14 @@ package it.gov.pagopa.forwarder.service;
 import it.gov.pagopa.forwarder.config.SslConfig;
 import it.gov.pagopa.forwarder.exception.AppException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.config.ConnectionConfig;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.logging.log4j.LogManager;
@@ -38,6 +42,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 @Service
@@ -58,6 +63,9 @@ public class ProxyService {
 
     @Value("${pool.max-connection.per-reoute}")
     private Integer maxConnectionPerRoute;
+
+    @Value("${pool.timeout}")
+    private Integer connTimeout;
 
     private RestTemplate restTemplate;
 
@@ -119,7 +127,12 @@ public class ProxyService {
             logger.error("HTTP Status Code Exception", e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("mTLS failed versus CI/PSP. Error: " + e.getMessage());
+        } catch (Exception e) {
+            logger.error( "Exception", e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Forwarder Generic Error: " + e.getMessage());
         }
+
 
     }
 
@@ -137,13 +150,21 @@ public class ProxyService {
         PoolingHttpClientConnectionManager poolingConnManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
         poolingConnManager.setMaxTotal(maxConnection); // default 20
         poolingConnManager.setDefaultMaxPerRoute(maxConnectionPerRoute); // default 2
+
         // λ = L / W  => RPS = parallel connections / Request Time
         // 200 rps = x / 0.1 s => x = 20
+        int timeout = connTimeout;
+        RequestConfig config = RequestConfig.custom()
+                .setConnectTimeout(timeout * 1000)
+                .setConnectionRequestTimeout(timeout * 1000)
+                .setSocketTimeout(timeout * 1000).build();
 
         HttpClient httpClient = HttpClients.custom()
                 .setSSLSocketFactory(socketFactory)
                 .setConnectionManager(poolingConnManager)
+                .setDefaultRequestConfig(config)
                 .build();
+
         ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
         this.restTemplate = new RestTemplate(requestFactory);
     }
