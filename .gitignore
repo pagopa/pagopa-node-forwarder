@@ -42,3 +42,4 @@ __*.sh
 *.PROD
 *.UAT
 *.key
+certs/

@@ -55,7 +55,7 @@ variables:
   title: ""
   sha: ""
   tag: ""
-
+# Only manual triggers
 trigger: none
 pr: none
 
@@ -66,6 +66,7 @@ stages:
 
   # Create a release on GitHub
   - stage: release_service
+    # if SEMVER is not 'skip'
     condition: ne('${{ parameters.SEMVER }}', 'skip')
     jobs:
       - job: releaseService
@@ -80,7 +81,7 @@ stages:
           - script: |
               git config --global user.name "$(GIT_USERNAME)"
               git config --global user.email "$(GIT_EMAIL)"
-
+            displayName: Set Git global config
           - template: azure-templates/maven-versioning.yml
             parameters:
               semver: "${{ parameters.SEMVER }}"
@@ -107,12 +108,12 @@ stages:
               echo "##vso[task.setvariable variable=title]$TITLE"
               echo "##vso[task.setvariable variable=sha]$HEAD_SHA"
               echo "##vso[task.setvariable variable=tag]$TAG"
-
+            displayName: Setting vars
           - script: |
               echo $(tag)
               echo $(title)
               echo $(sha)
-
+            displayName: Debug step
 
           # create new release
           - task: GitHubRelease@0
@@ -125,7 +126,6 @@ stages:
               tag: $(tag)
               title: $(title)
               addChangelog: true
-
   # Deploy on Azure
   - stage: deploy
     condition: not(failed('releaseService'))
@@ -185,7 +185,7 @@ stages:
               sonarQubeRunAnalysis: false
 
           - task: Docker@2
-            displayName: Build and push an image to container registry
+            displayName: Build and push image to container registry
             inputs:
               containerRegistry: '$(dockerRegistryServiceConnection)'
               repository: '$(IMAGE_REPOSITORY)'
@@ -196,7 +196,8 @@ stages:
                 $(pomversion.next)
 
           - task: AzureRMWebAppDeployment@4
-            displayName: Azure App Service Deploy
+            displayName: Azure App Service Deploy [DEV|UAT]
+            condition: in('${{ parameters.ENV }}', 'dev', 'uat')
             inputs:
               appType: webAppContainer
               ConnectedServiceName: '$(AZURE_SUBSCRIPTION)'
@@ -204,7 +205,51 @@ stages:
               DockerNamespace: '$(dockerNamespace)'
               DockerRepository: '$(IMAGE_REPOSITORY)'
               DockerImageTag: '$(Build.BuildId)'
-
+          - task: AzureRMWebAppDeployment@4
+            displayName: Azure App Service Deploy [PROD]
+            condition: eq('${{ parameters.ENV }}', 'prod')
+            inputs:
+              appType: webAppContainer
+              ConnectedServiceName: '$(AZURE_SUBSCRIPTION)'
+              WebAppName: '$(APP_NAME)'
+              DockerNamespace: '$(dockerNamespace)'
+              DockerRepository: '$(IMAGE_REPOSITORY)'
+              DockerImageTag: '$(Build.BuildId)'
+              deployToSlotOrASE: true
+              slotName: staging
+              resourceGroupName: $(RESOURCE_GROUP)              
           - script: |
               echo "##vso[task.setvariable variable=version;isOutput=true]$(pomversion.next)"
             name: dockerTag
+  # Prod deploy
+  - stage: deployApprovalPROD
+    condition: eq('${{ parameters.ENV }}', 'prod')
+    dependsOn: deploy
+    pool:
+      vmImage: "ubuntu-latest"
+    jobs:
+      - job: waitForApprovalPROD
+        displayName: waiting for approval
+        pool: server
+        timeoutInMinutes: 4320 # 3 days
+        steps:
+          - task: ManualValidation@0
+            displayName: Manual Approval
+            inputs:
+              onTimeout: "reject"
+
+      - job: completeProdDeployJava
+        condition: succeeded('waitForApprovalPROD')
+        displayName: complete prod deploy
+        dependsOn: waitForApprovalPROD
+        steps:
+          # deploy gpd | payments - swap
+          - task: AzureAppServiceManage@0
+            displayName: Swapping App Service Deploy
+            inputs:
+              ConnectedServiceName: $(AZURE_SUBSCRIPTION)
+              WebAppName: '$(APP_NAME)'
+              ResourceGroupName: $(RESOURCE_GROUP)
+              SourceSlot: staging
+              SwapWithProduction: true
+              Slot: production
