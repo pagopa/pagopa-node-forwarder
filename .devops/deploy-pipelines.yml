@@ -196,7 +196,7 @@ stages:
                 $(pomversion.next)
 
           - task: AzureRMWebAppDeployment@4
-            displayName: Azure App Service Deploy [DEV|UAT]
+            displayName: Azure App Service Deploy [DEV]
             # condition: in('${{ parameters.ENV }}', 'dev', 'uat')
             condition: in('${{ parameters.ENV }}', 'dev')
             inputs:
@@ -207,7 +207,7 @@ stages:
               DockerRepository: '$(IMAGE_REPOSITORY)'
               DockerImageTag: '$(Build.BuildId)'
           - task: AzureRMWebAppDeployment@4
-            displayName: Azure App Service Deploy [PROD]
+            displayName: Azure App Service Deploy ${{ parameters.ENV }}'
             # condition: eq('${{ parameters.ENV }}', 'prod')
             condition: in('${{ parameters.ENV }}', 'prod', 'uat')
             inputs:
@@ -224,7 +224,7 @@ stages:
               echo "##vso[task.setvariable variable=version;isOutput=true]$(pomversion.next)"
             name: dockerTag
   # Prod deploy
-  - stage: deployApprovalPROD
+  - stage: deployApproval ${{ parameters.ENV }}'
     # condition: eq('${{ parameters.ENV }}', 'prod')
     condition: in('${{ parameters.ENV }}', 'prod', 'uat')
     dependsOn: deploy
