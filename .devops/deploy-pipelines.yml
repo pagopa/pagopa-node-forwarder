@@ -197,7 +197,8 @@ stages:
 
           - task: AzureRMWebAppDeployment@4
             displayName: Azure App Service Deploy [DEV|UAT]
-            condition: in('${{ parameters.ENV }}', 'dev', 'uat')
+            # condition: in('${{ parameters.ENV }}', 'dev', 'uat')
+            condition: in('${{ parameters.ENV }}', 'dev')
             inputs:
               appType: webAppContainer
               ConnectedServiceName: '$(AZURE_SUBSCRIPTION)'
@@ -207,7 +208,8 @@ stages:
               DockerImageTag: '$(Build.BuildId)'
           - task: AzureRMWebAppDeployment@4
             displayName: Azure App Service Deploy [PROD]
-            condition: eq('${{ parameters.ENV }}', 'prod')
+            # condition: eq('${{ parameters.ENV }}', 'prod')
+            condition: in('${{ parameters.ENV }}', 'prod', 'uat')
             inputs:
               appType: webAppContainer
               ConnectedServiceName: '$(AZURE_SUBSCRIPTION)'
@@ -223,7 +225,8 @@ stages:
             name: dockerTag
   # Prod deploy
   - stage: deployApprovalPROD
-    condition: eq('${{ parameters.ENV }}', 'prod')
+    # condition: eq('${{ parameters.ENV }}', 'prod')
+    condition: in('${{ parameters.ENV }}', 'prod', 'uat')
     dependsOn: deploy
     pool:
       vmImage: "ubuntu-latest"
