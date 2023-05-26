@@ -224,14 +224,14 @@ stages:
               echo "##vso[task.setvariable variable=version;isOutput=true]$(pomversion.next)"
             name: dockerTag
   # Prod deploy
-  - stage: deployApproval ${{ parameters.ENV }}'
+  - stage: deployApproval_PROD_UAT
     # condition: eq('${{ parameters.ENV }}', 'prod')
     condition: in('${{ parameters.ENV }}', 'prod', 'uat')
     dependsOn: deploy
     pool:
       vmImage: "ubuntu-latest"
     jobs:
-      - job: waitForApprovalPROD
+      - job: waitForApproval
         displayName: waiting for approval
         pool: server
         timeoutInMinutes: 4320 # 3 days
@@ -242,11 +242,11 @@ stages:
               onTimeout: "reject"
 
       - job: completeProdDeployJava
-        condition: succeeded('waitForApprovalPROD')
+        condition: succeeded('waitForApproval')
         displayName: complete prod deploy
-        dependsOn: waitForApprovalPROD
+        dependsOn: waitForApproval
         steps:
-          # deploy gpd | payments - swap
+          # deploy swap
           - task: AzureAppServiceManage@0
             displayName: Swapping App Service Deploy
             inputs:
