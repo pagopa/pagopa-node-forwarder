@@ -3,9 +3,9 @@
   "scenarios": {
     "contacts": {
       "executor": "constant-arrival-rate",
-      "duration": "10m",
+      "duration": "5m",
       "rate": 300,
-      "timeUnit": "1s",
+      "timeUnit": "60s",
       "preAllocatedVUs": 100,
       "maxVUs": 10000
     }
