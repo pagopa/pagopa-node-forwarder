@@ -60,6 +60,7 @@ parameters:
       - "spike"
       - "stress"
       - "constant"
+      - "custom"
     default: "constant"
   - name: "SCRIPT"
     displayName: "Script name"

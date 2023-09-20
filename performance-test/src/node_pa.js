@@ -40,10 +40,7 @@ export default function node_pa() {
 
     let payload = primitives[soapAction];
 	for (let key of Object.keys(__ENV)) {
-		if (debug) {
-			console.log("__ENV", key, __ENV[key])
-		}
-		payload = payload.replace(key, __ENV[key]);
+		payload = payload.split(key).join(__ENV[key]) // replace all
 	}
 	if (debug) {
 		console.log("REQ PAYLOAD", payload)
