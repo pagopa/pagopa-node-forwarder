@@ -95,5 +95,3 @@ steps:
       cd ./performance-test
       sh ./run_performance_test.sh ${{ parameters.ENVIRONMENT }} ${{ parameters.TEST_TYPE }} ${{ parameters.SCRIPT }} pagopanodeforwarder $(API_SUBSCRIPTION_KEY) ${{ parameters.ID_PSP }} ${{ parameters.ID_BROKER_PSP }} ${{ parameters.ID_CHANNEL }} ${{ parameters.ID_CI }} ${{ parameters.ID_BROKER_CI }} ${{ parameters.ID_STATION }} ${{ parameters.NOTICE_NUMBER }} ${{ parameters.HOST_URL }} ${{ parameters.HOST_PORT }} ${{ parameters.HOST_PATH }} ${{ parameters.DEBUG }}
     displayName: Run k6 ${{ parameters.SCRIPT }} on ${{ parameters.ENVIRONMENT }}
-
-  sh ./run_performance_test.sh uat single node_pa pagopanodeforwarder 59fd2410eaf9462cad46c91200a3bca2 - - - 06655971007 07783530962 07783530962_01 304100422964016149 paytippaqaweb.enel.com 443 /servicews/PagamentiTelematiciCCP True
