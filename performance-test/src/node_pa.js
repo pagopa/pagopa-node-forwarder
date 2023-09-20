@@ -21,12 +21,6 @@ const primitives = vars.primitives;
 
 export default function node_pa() {
 	const debug = "DEBUG" in __ENV ? __ENV.DEBUG === "True" : false;
-	console.log("Start node_pa")
-	console.log(__ENV)
-
-	if (debug){
-		console.log("DEBUG Enabled")
-	}
  	const soapAction = 'paVerifyPaymentNotice';
 	let headers = {
 		'SOAPAction': soapAction,
