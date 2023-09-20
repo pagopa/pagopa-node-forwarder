@@ -10,7 +10,7 @@
     "count"
   ],
   "vus": 1,
-  "iteration": 1,
+  "iterations": 1,
   "thresholds": {
     "http_req_failed": [
       "rate<0.1"
