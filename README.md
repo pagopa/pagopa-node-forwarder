@@ -7,8 +7,14 @@ The microservice behaves like a "proxy": it receives requests from the [Nodo Dei
   <summary>NAT gateway IPs</summary>
 
 ### Outbound pagopa-natgw ips
-- UAT env `20.56.27.220`
-- PROD env `20.86.139.154` or `20.86.139.86`
+
+Environments :
+- UAT 🧪
+  - ip `20.56.27.220` 
+  - fqdn `forwarder.uat.platform.pagopa.it`
+- PROD 🚀
+  - ips `20.86.139.154` or `20.86.139.86` 
+  - fqdn `forwarder.platform.pagopa.it`
 
 </details>
 
