@@ -48,6 +48,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class ProxyService {
     private static final String X_REQUEST_ID = "X-Request-Id";
+    private static final String OCP_APIM_SUBSCRIPTION_KEY = "Ocp-Apim-Subscription-Key";
 
     @Value("${certificate.crt}")
     private String certificate;
@@ -85,14 +86,12 @@ public class ProxyService {
 
         while (headerNames.hasMoreElements()) {
             String headerName = headerNames.nextElement();
-            if (!headerName.equalsIgnoreCase("ocp-apim-subscription-key")) {
-                headers.set(headerName, request.getHeader(headerName));
-            }
+            headers.set(headerName, request.getHeader(headerName));
         }
-
         headers.set(X_REQUEST_ID, xRequestId);
         headers.set(HttpHeaders.HOST, xHostUrl);
         headers.remove(HttpHeaders.ACCEPT_ENCODING);
+        headers.remove(OCP_APIM_SUBSCRIPTION_KEY); // remove subkey's header
 
         // construct URI for the request
         xHostPath = xHostPath.startsWith("/") ? xHostPath : String.format("/%s", xHostPath);
