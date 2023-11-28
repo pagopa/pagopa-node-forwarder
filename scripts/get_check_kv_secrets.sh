@@ -3,6 +3,9 @@
 # to check chain certificate
 # openssl crl2pkcs7 -nocrl -certfile forwarder.platform.pagopa.it.pem | openssl pkcs7 -print_certs -noout
 
+# union cert chain
+# cat forwarder_<ENV>_platform_pagopa_it.crt DigiCertCA.crt TrustedRoot.crt > forwarder.<ENV>.platform.pagopa.it.pem
+
 if [ $# -eq 0 ]
   then
     echo "> sh $0.sh <dev|uat|prod>"
