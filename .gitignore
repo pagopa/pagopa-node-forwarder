@@ -43,3 +43,4 @@ __*.sh
 *.UAT
 *.key
 certs/
+**/*.csr
