@@ -4,25 +4,22 @@ import it.gov.pagopa.forwarder.config.SslConfig;
 import it.gov.pagopa.forwarder.exception.AppException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.config.ConnectionConfig;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.client.*;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
@@ -42,7 +39,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 
 @Service
@@ -90,7 +86,7 @@ public class ProxyService {
         }
         headers.set(X_REQUEST_ID, xRequestId);
         headers.set(HttpHeaders.HOST, xHostUrl);
-        headers.remove(HttpHeaders.ACCEPT_ENCODING);
+        //headers.remove(HttpHeaders.ACCEPT_ENCODING);
         headers.remove(OCP_APIM_SUBSCRIPTION_KEY); // remove subkey's header
 
         // construct URI for the request
@@ -114,9 +110,6 @@ public class ProxyService {
             logger.info("https req {} >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> {} body {}\n", method, uri, httpEntity);
 
             ResponseEntity<String> serverResponse = restTemplate.exchange(uri, method, httpEntity, String.class);
-            HttpHeaders responseHeaders = new HttpHeaders();
-            List<String> value = serverResponse.getHeaders().get(HttpHeaders.CONTENT_TYPE);
-            responseHeaders.put(HttpHeaders.CONTENT_TYPE, value != null ? value : new ArrayList<>());
             logger.info("server resp {}", serverResponse);
             return serverResponse;
         } catch (HttpStatusCodeException e) {
@@ -167,7 +160,20 @@ public class ProxyService {
                 .build();
 
         ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
-        this.restTemplate = new RestTemplate(requestFactory);
+        RestTemplate restTemp = new RestTemplate(requestFactory);
+
+
+        List<ClientHttpRequestInterceptor> interceptors = restTemp.getInterceptors();
+        if (CollectionUtils.isEmpty(interceptors)) {
+            interceptors = new ArrayList<>();
+        }
+        interceptors.add(new RestTemplateHeaderModifierInterceptor());
+        restTemp.setInterceptors(interceptors);
+
+        this.restTemplate = restTemp;
+
+
+
     }
 
     @Recover
