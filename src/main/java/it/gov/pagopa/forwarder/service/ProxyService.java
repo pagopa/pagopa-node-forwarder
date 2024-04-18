@@ -4,13 +4,10 @@ import it.gov.pagopa.forwarder.config.SslConfig;
 import it.gov.pagopa.forwarder.exception.AppException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.config.ConnectionConfig;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.logging.log4j.LogManager;
@@ -40,15 +37,16 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 
 @Service
 public class ProxyService {
     private static final String X_REQUEST_ID = "X-Request-Id";
     private static final String OCP_APIM_SUBSCRIPTION_KEY = "Ocp-Apim-Subscription-Key";
+    public static final String X_STATION_STATUS = "X-Station-Status";
 
     @Value("${certificate.crt}")
     private String certificate;
@@ -117,16 +115,19 @@ public class ProxyService {
             HttpHeaders responseHeaders = new HttpHeaders();
             List<String> value = serverResponse.getHeaders().get(HttpHeaders.CONTENT_TYPE);
             responseHeaders.put(HttpHeaders.CONTENT_TYPE, value != null ? value : new ArrayList<>());
+            responseHeaders.put(X_STATION_STATUS, Collections.singletonList("OK"));
             logger.info("server resp {}", serverResponse);
             return serverResponse;
         } catch (HttpStatusCodeException e) {
             logger.error("HTTP Status Code Exception", e);
             return ResponseEntity.status(e.getRawStatusCode())
                     .headers(e.getResponseHeaders())
+                    .header(X_STATION_STATUS,"KO")
                     .body(e.getResponseBodyAsString());
         } catch (ResourceAccessException e) {
             logger.error("HTTP Status Code Exception", e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .header(X_STATION_STATUS,"CERTIFICATE ERROR")
                     .body("mTLS failed versus CI/PSP. Error: " + e.getMessage());
         } catch (Exception e) {
             logger.error( "Exception", e);
