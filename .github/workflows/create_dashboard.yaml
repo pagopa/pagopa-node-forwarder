@@ -29,7 +29,8 @@ jobs:
     strategy:
       matrix:
         environment: [prod]
-        product: [apim_v1, apim_v2]
+        # product: [apim_v1, apim_v2]
+        product: [apim_v2]
       max-parallel: 1
     environment:
       name: ${{ matrix.environment }}
