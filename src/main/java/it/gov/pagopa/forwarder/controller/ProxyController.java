@@ -33,7 +33,7 @@ public class ProxyController {
             @RequestHeader(value="X-Host-Url") @NotNull String xHostUrl,
             @RequestHeader(value="X-Host-Port") @NotNull Integer xHostPort,
             @RequestHeader(value="X-Host-Path") @NotNull String xHostPath,
-            @RequestBody(required = false) String body,
+            @RequestBody(required = false) byte[] body,
                                                    HttpMethod method, HttpServletRequest request, HttpServletResponse response)
             throws URISyntaxException, UnrecoverableKeyException, CertificateException, IOException, NoSuchAlgorithmException, KeyStoreException, InvalidKeySpecException, KeyManagementException {
         String xRequestId = request.getHeader("X-Request-Id");
