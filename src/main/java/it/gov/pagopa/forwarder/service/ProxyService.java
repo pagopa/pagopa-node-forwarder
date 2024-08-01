@@ -100,7 +100,6 @@ public class ProxyService {
 
         HttpEntity<byte[]> httpEntity = new HttpEntity<>(body, headers);
 
-
 //        // --- path to disable manually mTSL - START
 //        ClientHttpRequestFactory factory = new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
 //        restTemplate = new RestTemplate(factory); // original`
