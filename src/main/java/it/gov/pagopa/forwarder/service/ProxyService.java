@@ -2,7 +2,6 @@ package it.gov.pagopa.forwarder.service;
 
 import it.gov.pagopa.forwarder.config.SslConfig;
 import it.gov.pagopa.forwarder.exception.AppException;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.Registry;
@@ -14,7 +13,6 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
 import org.springframework.http.client.*;
 import org.springframework.retry.annotation.Backoff;
@@ -30,10 +28,8 @@ import javax.net.ssl.SSLContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -102,7 +98,6 @@ public class ProxyService {
             this.setRestTemplate();
         }
 
-//        HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
         HttpEntity<byte[]> httpEntity = new HttpEntity<>(body, headers);
 
 
@@ -116,7 +111,6 @@ public class ProxyService {
             logger.info("https req {} >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> {} body {}\n", method, uri, httpEntity);
 
             ResponseEntity<String> serverResponse = restTemplate.exchange(uri, method, httpEntity, String.class);
-            // ResponseEntity<String> serverResponse = restTemplate.exchange(uri, method, httpEntity, String.class);
             logger.info("server resp {}", serverResponse);
             return serverResponse;
         } catch (HttpStatusCodeException e) {
