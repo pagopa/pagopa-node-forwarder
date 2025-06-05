@@ -197,7 +197,7 @@ stages:
               effectivePomSkip: false
               sonarQubeRunAnalysis: false
             env:
-              JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+              JAVA_HOME_11_X64: /usr/lib/jvm/java-11-openjdk-amd64
 
           - task: Docker@2
             displayName: Build and push image to container registry
