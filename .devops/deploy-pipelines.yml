@@ -69,6 +69,13 @@ pool:
   name: $(poolImage)
 
 stages:
+  - stage: pre_run
+    jobs:
+      - job: install_maven
+        steps:
+          - script: |
+              sudo apt-get update
+              sudo apt-get install -y maven
 
   # Create a release on GitHub
   - stage: release_service
