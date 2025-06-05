@@ -75,7 +75,7 @@ stages:
         steps:
           - script: |
               sudo apt-get update
-              sudo apt-get install -y maven openjdk-17-jdk
+              sudo apt-get install -y maven openjdk-11-jre-headless
 
   # Create a release on GitHub
   - stage: release_service
