@@ -1,4 +1,36 @@
 #!/usr/bin/env bash
+# -----------------------------------------------------------------------------
+# set_kv_secrets.sh
+#
+# Descrizione:
+#   Script per caricare il certificato e la chiave privata (in formato PKCS#8)
+#   nel Key Vault di Azure per l'ambiente specificato (dev|uat|prod).
+#
+# Funzionalità principali:
+#   - Verifica che sia passato l'argomento ambiente e che i file necessari
+#     esistano (.pem e chiave PKCS#1).
+#   - Converte la chiave privata da PKCS#1 a PKCS#8 usando openssl.
+#   - Estrae il file .crt dal file .pem.
+#   - Carica i file risultanti come secret nel Key Vault Azure:
+#       * certificate-crt-node-forwarder  -> file .crt
+#       * certificate-key-node-forwarder  -> chiave privata in PKCS#8
+#
+# Requisiti:
+#   - Azure CLI (az) autenticata e configurata per la subscription corretta
+#   - openssl installato
+#
+# Uso:
+#   sh scripts/set_kv_secrets.sh dev|uat|prod
+#
+# Effetti collaterali:
+#   - Genera ../certs/<env>-certificate.crt
+#   - Genera ../certs/<env>-private.key in formato PKCS#8 (sovrascrive il file se esiste)
+#   - Carica i secret nel Key Vault relativo all'ambiente
+#
+# Note operative:
+#   - Il nome del Key Vault è derivato come pagopa-<d|u|p>-kv (prima lettera dell'ambiente)
+#   - Assicurarsi di avere i permessi per eseguire az keyvault secret set sul Key Vault
+# ----------------
 
 if [ $# -eq 0 ]
   then
