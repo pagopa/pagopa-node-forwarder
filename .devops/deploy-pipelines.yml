@@ -30,6 +30,7 @@ variables:
     STAGE: "d"
     dockerRegistryServiceConnection: $(DEV_CONTAINER_REGISTRY_SERVICE_CONN)
     dockerNamespace: $(DEV_CONTAINER_NAMESPACE)
+    poolImage: 'pagopa-dev-linux'
   ${{ if eq(parameters['ENV'], 'uat') }}:
     AZURE_SUBSCRIPTION: $(UAT_AZURE_SUBSCRIPTION)
     RESOURCE_GROUP: $(UAT_WEB_APP_RESOURCE_GROUP_NAME)
@@ -37,6 +38,7 @@ variables:
     STAGE: "u"
     dockerRegistryServiceConnection: $(UAT_CONTAINER_REGISTRY_SERVICE_CONN)
     dockerNamespace: $(UAT_CONTAINER_NAMESPACE)
+    poolImage: 'pagopa-uat-linux'    
   ${{ if eq(parameters['ENV'], 'prod') }}:
     AZURE_SUBSCRIPTION: $(PROD_AZURE_SUBSCRIPTION)
     RESOURCE_GROUP: $(PROD_WEB_APP_RESOURCE_GROUP_NAME)
@@ -44,6 +46,7 @@ variables:
     STAGE: "p"
     dockerRegistryServiceConnection: $(PROD_CONTAINER_REGISTRY_SERVICE_CONN)
     dockerNamespace: $(PROD_CONTAINER_NAMESPACE)
+    poolImage: 'pagopa-prod-linux'    
   ${{ if eq(variables['Build.SourceBranchName'], 'merge') }}:
     SOURCE_BRANCH: "main" # force to main branch
   ${{ if ne(variables['Build.SourceBranchName'], 'merge') }}:
@@ -59,10 +62,20 @@ variables:
 trigger: none
 pr: none
 
+# pool:
+#   vmImage: 'ubuntu-22.04'
+
 pool:
-  vmImage: 'ubuntu-22.04'
+  name: $(poolImage)
 
 stages:
+  - stage: pre_run
+    jobs:
+      - job: install_maven
+        steps:
+          - script: |
+              sudo apt-get update
+              sudo apt-get install -y maven openjdk-11-jre-headless
 
   # Create a release on GitHub
   - stage: release_service
@@ -183,6 +196,8 @@ stages:
               mavenAuthenticateFeed: false
               effectivePomSkip: false
               sonarQubeRunAnalysis: false
+            env:
+              JAVA_HOME_11_X64: /usr/lib/jvm/java-11-openjdk-amd64
 
           - task: Docker@2
             displayName: Build and push image to container registry

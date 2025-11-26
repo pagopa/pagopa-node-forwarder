@@ -78,7 +78,7 @@ cert_on_repo=`openssl x509 -in "../certs/$pem_certificate" -text | grep -e "Subj
 #echo "get cert on app"
 #az account set -s "${SUBSCRIPTION}"
 
-cert_on_app=`az webapp config appsettings list --name "pagopa-$shortenv-weu-core-app-node-forwarder" --resource-group "pagopa-$shortenv-node-forwarder-rg" --subscription "$subscriptionid" | jq -r '.[] | select(.name | startswith("CERTIFICATE_CRT"))'.value | openssl x509 -text | grep -e "Subject: CN" -e "Not " -e "Serial Number:" -A 1`
+cert_on_app=`az webapp config appsettings list --name "pagopa-$shortenv-weu-core-app-node-forwarder-ha" --resource-group "pagopa-$shortenv-node-forwarder-rg" --subscription "$subscriptionid" | jq -r '.[] | select(.name | startswith("CERTIFICATE_CRT"))'.value | openssl x509 -text | grep -e "Subject: CN" -e "Not " -e "Serial Number:" -A 1`
 
 
 if [ "$cert_on_kv" = "$cert_on_repo" ] && [ "$cert_on_repo" = "$cert_on_app" ]; then
