@@ -1,10 +1,39 @@
 #!/usr/bin/env bash
-
-# to check chain certificate
-# openssl crl2pkcs7 -nocrl -certfile forwarder.platform.pagopa.it.pem | openssl pkcs7 -print_certs -noout
-
-# union cert chain
-# cat forwarder_<ENV>_platform_pagopa_it.crt DigiCertCA.crt TrustedRoot.crt > forwarder.<ENV>.platform.pagopa.it.pem
+# -----------------------------------------------------------------------------
+# get_check_kv_secrets.sh
+#
+# Descrizione:
+#   Script per verificare che il certificato presente nel repository, nel
+#   Key Vault di Azure e nelle App Service (WebApp) corrispondano.
+#
+# Funzionalità principali: ℹ️
+#   - Scarica il secret "certificate-crt-node-forwarder" dal Key Vault
+#     corrispondente all'ambiente (dev|uat|prod).
+#   - Estrae informazioni significative (Subject CN, validità, Serial Number)
+#     dal certificato sul Key Vault, dal certificato presente nella cartella
+#     ../certs/ del repository e dal certificato configurato nelle App Settings
+#     della WebApp.
+#   - Confronta le informazioni estratte e stampa se i certificati sono uguali
+#     o mostra le differenze trovate.
+#
+# Requisiti: 🚀
+#   - Azure CLI (az) autenticata e configurata per la subscription corretta
+#   - jq (per parse JSON)
+#   - openssl (per estrarre i dettagli del certificato)
+#
+# Uso:
+#   sh scripts/get_check_kv_secrets.sh dev|uat|prod
+#
+# Effetti collaterali: ⚠️
+#   - Scrive sul filesystem un file temporaneo "current-<pem_certificate>" con il
+#     contenuto del secret recuperato dal Key Vault.
+#
+# Note: 📝
+#   - I nomi dei Key Vault, delle subscription e delle WebApp sono derivati
+#     dall'ambiente passato come argomento.
+#   - Verificare di avere i permessi necessari su Key Vault e WebApp per leggere
+#     i secrets/appsettings.
+# -----------------------------------------------------------------------------
 
 if [ $# -eq 0 ]
   then
@@ -53,16 +82,21 @@ cert_on_app=`az webapp config appsettings list --name "pagopa-$shortenv-weu-core
 
 
 if [ "$cert_on_kv" = "$cert_on_repo" ] && [ "$cert_on_repo" = "$cert_on_app" ]; then
-    echo "Certs are equal"
+    echo "Certs are equal ✅"
     echo $cert_on_repo
 else
-    echo "Certs are not equal."
+    echo "Certs are not equal ⚠️"
     echo "cert_on_kv\n $cert_on_kv"
     echo "cert_on_repo\n $cert_on_repo"
     echo "cert_on_app\n $cert_on_app"
 fi
 
 
+# to check chain certificate
+# openssl crl2pkcs7 -nocrl -certfile ../certs/forwarder.<ENV>.platform.pagopa.it.pem | openssl pkcs7 -print_certs -noout
+
+# union cert chain
+# cat forwarder_<ENV>_platform_pagopa_it.crt DigiCertCA.crt TrustedRoot.crt > forwarder.<ENV>.platform.pagopa.it.pem
 
 
 
