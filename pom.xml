@@ -16,7 +16,7 @@
     <description>API to forward Node requests to the related CIs and PSPs</description>
 
     <properties>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
 
         <!-- util -->
         <guava.version>19.0</guava.version>
