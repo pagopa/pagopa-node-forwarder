@@ -8,7 +8,7 @@ Convert client key from PEM to DER format typing :
 to avoid [Read RSA Private Key Java](https://www.sneppets.com/java/util/private-key-algid-parse-error-not-a-sequence/)
 
 ### List entry in keystore via `keytool`
-see [here](https://docs.oracle.com/en/java/javase/11/tools/keytool.html)
+see [here](https://docs.oracle.com/en/java/javase/17/docs/specs/man/keytool.html)
 
 Open terminal and typing ( to list all entry ) :
 
