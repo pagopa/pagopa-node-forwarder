@@ -30,6 +30,7 @@ variables:
     STAGE: "d"
     dockerRegistryServiceConnection: $(DEV_CONTAINER_REGISTRY_SERVICE_CONN)
     dockerNamespace: $(DEV_CONTAINER_NAMESPACE)
+    poolImage: 'pagopa-dev-linux-infra'
   ${{ if eq(parameters['ENV'], 'uat') }}:
     AZURE_SUBSCRIPTION: $(UAT_AZURE_SUBSCRIPTION)
     RESOURCE_GROUP: $(UAT_WEB_APP_RESOURCE_GROUP_NAME)
@@ -37,6 +38,7 @@ variables:
     STAGE: "u"
     dockerRegistryServiceConnection: $(UAT_CONTAINER_REGISTRY_SERVICE_CONN)
     dockerNamespace: $(UAT_CONTAINER_NAMESPACE)
+    poolImage: 'pagopa-uat-linux-infra'
   ${{ if eq(parameters['ENV'], 'prod') }}:
     AZURE_SUBSCRIPTION: $(PROD_AZURE_SUBSCRIPTION)
     RESOURCE_GROUP: $(PROD_WEB_APP_RESOURCE_GROUP_NAME)
@@ -44,6 +46,7 @@ variables:
     STAGE: "p"
     dockerRegistryServiceConnection: $(PROD_CONTAINER_REGISTRY_SERVICE_CONN)
     dockerNamespace: $(PROD_CONTAINER_NAMESPACE)
+    poolImage: 'pagopa-prod-linux-infra'
   ${{ if eq(variables['Build.SourceBranchName'], 'merge') }}:
     SOURCE_BRANCH: "main" # force to main branch
   ${{ if ne(variables['Build.SourceBranchName'], 'merge') }}:
@@ -131,6 +134,7 @@ stages:
     condition: not(failed('releaseService'))
     jobs:
       - job: deployJava
+        pool: $(poolImage)
         steps:
 
           - script: |
@@ -228,8 +232,7 @@ stages:
     # condition: eq('${{ parameters.ENV }}', 'prod')
     condition: in('${{ parameters.ENV }}', 'prod', 'uat')
     dependsOn: deploy
-    pool:
-      vmImage: "ubuntu-latest"
+    pool: $(poolImage)
     jobs:
       - job: waitForApproval
         displayName: waiting for approval
