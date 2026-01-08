@@ -198,6 +198,7 @@ stages:
                 $(pomversion.next)
 
       - job: deployJava
+        dependsOn: buildJava
         pool: $(poolImage)
         steps:
           - task: AzureRMWebAppDeployment@4
@@ -232,7 +233,7 @@ stages:
   - stage: deployApproval_PROD_UAT
     # condition: eq('${{ parameters.ENV }}', 'prod')
     condition: in('${{ parameters.ENV }}', 'prod', 'uat')
-    dependsOn: deploy
+    dependsOn: build_and_deploy
     pool: $(poolImage)
     jobs:
       - job: waitForApproval
