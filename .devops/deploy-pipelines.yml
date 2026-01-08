@@ -129,14 +129,12 @@ stages:
               tag: $(tag)
               title: $(title)
               addChangelog: true
-  # Deploy on Azure
-  - stage: deploy
+  # Build and deploy on Azure
+  - stage: build and deploy
     condition: not(failed('releaseService'))
     jobs:
-      - job: deployJava
-        pool: $(poolImage)
+      - job: buildJava
         steps:
-
           - script: |
               echo ${{variables['Build.SourceBranchName']}}        
               echo $(SOURCE_BRANCH)
@@ -199,6 +197,9 @@ stages:
                 latest
                 $(pomversion.next)
 
+      - job: deployJava
+        pool: $(poolImage)
+        steps:
           - task: AzureRMWebAppDeployment@4
             displayName: Azure App Service Deploy [DEV]
             # condition: in('${{ parameters.ENV }}', 'dev', 'uat')
