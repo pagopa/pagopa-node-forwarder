@@ -130,7 +130,7 @@ stages:
               title: $(title)
               addChangelog: true
   # Build and deploy on Azure
-  - stage: build and deploy
+  - stage: build_and_deploy
     condition: not(failed('releaseService'))
     jobs:
       - job: buildJava
