@@ -34,6 +34,7 @@ hs_err_pid*
 **/node_modules
 
 scripts/*.pem
+scripts/*.OLD*
 *.pagopa
 *.DS_Store
 **/.terraform
