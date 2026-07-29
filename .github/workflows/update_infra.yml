@@ -26,7 +26,7 @@ jobs:
 
       # open a PR on infra repo
       - name: Create pull request
-        uses: jacopocarlini/action-pull-request-another-repo@main
+        uses: jacopocarlini/action-pull-request-another-repo@f0c80501be1cd880ac5b1fd90da4c1f417e5a737 # main
         env:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }} # TODO: set this secret in repository
         with:
