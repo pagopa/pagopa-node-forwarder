@@ -52,9 +52,6 @@ public class ProxyService {
     @Value("${certificate.key}")
     private String certificateKey;
 
-    @Value("${info.application.version}")
-    private String nodeForwarderVersion;
-
     @Value("${pool.max-connection}")
     private Integer maxConnection;
 
@@ -106,11 +103,7 @@ public class ProxyService {
 //        // --- path to disable manually mTSL - STOP
 
         try {
-            logger.info("Node Forwarder version: {}", nodeForwarderVersion);
-            logger.info("https req {} >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> {} body {}\n", method, uri, httpEntity);
-
             ResponseEntity<String> serverResponse = restTemplate.exchange(uri, method, httpEntity, String.class);
-            logger.info("server resp {}", serverResponse);
             return serverResponse;
         } catch (HttpStatusCodeException e) {
             logger.error("HTTP Status Code Exception", e);
