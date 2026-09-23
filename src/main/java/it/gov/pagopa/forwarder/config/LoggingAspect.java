@@ -79,17 +79,18 @@ public class LoggingAspect {
 
     @Before(value = "restController()")
     public void logApiInvocation(JoinPoint joinPoint) {
-        log.info("Invoking API operation {} - args: {}", joinPoint.getSignature().getName(), joinPoint.getArgs());
+        log.debug("Invoking API operation {} - args: {}", joinPoint.getSignature().getName(), joinPoint.getArgs());
     }
 
     @AfterReturning(value = "restController()", returning = "result")
     public void returnApiInvocation(JoinPoint joinPoint, Object result) {
-        log.info("Successful API operation {} - result: {}", joinPoint.getSignature().getName(), result);
+        log.debug("Successful API operation {} - result: {}", joinPoint.getSignature().getName(), result);
     }
 
+    // req/res above is DEBUG since APIM already logs it; failures stay visible at WARN (5xx are already logged at ERROR by ErrorHandler, and 4xx are client errors)
     @AfterReturning(value = "errorHandler()", returning = "result")
     public void trowingApiInvocation(JoinPoint joinPoint, Object result) {
-        log.info("Failed API operation {} - error: {}", joinPoint.getSignature().getName(), result);
+        log.warn("Failed API operation {} - error: {}", joinPoint.getSignature().getName(), result);
     }
 
     @Around(value = "service()")
