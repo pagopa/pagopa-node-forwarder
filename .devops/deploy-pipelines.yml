@@ -55,6 +55,7 @@ variables:
 
   MAVEN_CACHE_FOLDER: $(Pipeline.Workspace)/.m2/repository
   MAVEN_OPTS: "-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)"
+  JAVA_OPTS: '-XX:-UseBASE64Intrinsics'
   title: ""
   sha: ""
   tag: ""
@@ -212,6 +213,7 @@ stages:
               DockerNamespace: '$(dockerNamespace)'
               DockerRepository: '$(IMAGE_REPOSITORY)'
               DockerImageTag: '$(Build.BuildId)'
+              AppSettings: '-JAVA_OPTS "$(JAVA_OPTS)"'
           - task: AzureRMWebAppDeployment@4
             displayName: Azure App Service Deploy ${{ parameters.ENV }}
             # condition: eq('${{ parameters.ENV }}', 'prod')
@@ -223,6 +225,7 @@ stages:
               DockerNamespace: '$(dockerNamespace)'
               DockerRepository: '$(IMAGE_REPOSITORY)'
               DockerImageTag: '$(Build.BuildId)'
+              AppSettings: '-JAVA_OPTS "$(JAVA_OPTS)"'
               deployToSlotOrASE: true
               slotName: staging
               resourceGroupName: $(RESOURCE_GROUP)

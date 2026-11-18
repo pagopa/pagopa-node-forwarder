@@ -66,6 +66,9 @@ Start the springboot application with this command:
 - **local**: to develop locally.
 - _default (no profile set)_: The application gets the properties from the environment (for Azure).
 
+The [Azure deploy pipeline](.devops/deploy-pipelines.yml) sets `JAVA_OPTS=-XX:-UseBASE64Intrinsics`
+on the App Service in dev and on the `staging` slot in UAT and prod before the slot swap.
+
 
 ### Testing 🧪
 
